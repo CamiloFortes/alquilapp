@@ -172,7 +172,8 @@ const ConfigurarUsuario = ({navigation}) =>
 {    
   return(
     <View>
-        <Text>Conf usuario </Text>        
+        <Text>Conf usuario </Text> 
+        <Text>Probando cambios </Text>               
     </View>
   )
 }
