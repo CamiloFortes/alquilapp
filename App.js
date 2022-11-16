@@ -174,7 +174,7 @@ const ConfigurarUsuario = ({navigation}) =>
     <View>
         <Text>Conf usuario </Text> 
         <Text>Probando cambios </Text>  
-        <Text>Hola lokito </Text>                
+        <Text>Hola camilo </Text>                
     </View>
   )
 }
