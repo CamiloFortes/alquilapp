@@ -174,6 +174,7 @@ const ConfigurarUsuario = ({navigation}) =>
     <View>
         <Text>A VER SI AHORA FUNCIONAN LOS CAMBIOS</Text>
         <Text>hello darkness my old friend </Text> 
+        <Text>Partido comunista</Text>
         <Text>Conf usuario </Text> 
         <Text>Probando cambios </Text>  
         <Text>Hola bb </Text>  
