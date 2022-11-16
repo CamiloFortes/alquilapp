@@ -15,12 +15,17 @@
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
-      "**/*"
+      "assests/*"
     ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package":"com.camilo.alquilapp",
+      
+      "permissions": [
+        "CAMERA"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -28,6 +33,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+      "react-native-vision-camera",
+      {"cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."}
+      ]
+    ]
   }
 }
