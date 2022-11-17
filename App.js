@@ -20,14 +20,29 @@ const max = 2022;
 const minday = 11;
 const minmonth = 11;
 const minyear = 2004;
+const yytar= 2022;
+const mmtar= 11;
 const tarjetaSchema= yup.object().shape({
   monto: yup
   .number().required('Indique monto'),
   tarjeta: yup
   .string()
-  .min(5, 'debe tener 5 caracteres')
-  .max(5, 'debe tener 5 caracteres' )
-  .required('indique'),
+  .min(16, 'debe tener 16 caracteres')
+  .max(16, 'debe tener 16 caracteres' )
+  .required('indique numero de tarjeta'),
+  nombre: yup
+  .string()
+  .required('nombre requerido'),
+  cvv: yup 
+  .string()
+  .min(3, 'debe tener 3 caracteres')
+  .max(3, 'debe tener 3 caracteres' )
+  .required('indique numero de tarjeta'),
+  vencimiento: yup
+  .date()
+  .default(new Date(yytar, mmtar))
+  .min(yytar, `La fecha debe ser como minimo ${yytar+ '/' +mmtar}`)
+  .required('End Date required'),
 })
 
 const iniciarSesionSchema = yup.object().shape({
@@ -589,6 +604,9 @@ const CargarBilletera = ({route, navigation}) =>
          value={values.monto}
          keyboardType="numeric"
        />
+       {
+          errors.monto && <Text style={{ fontSize: 10, color: 'red' }}>{errors.monto}</Text>
+       }
       <TextInput
          name="tarjeta"
          placeholder="Numero de tarjeta"
@@ -609,6 +627,9 @@ const CargarBilletera = ({route, navigation}) =>
           onBlur={handleBlur('nombre')}
           value={values.nombre}
         />
+         {
+          errors.nombre && <Text style={{ fontSize: 10, color: 'red' }}>{errors.nombre}</Text>
+       }
         <View style={styles.viewwallet}>
         <TextInput
          name="vencimiento"
@@ -619,6 +640,9 @@ const CargarBilletera = ({route, navigation}) =>
           value={values.vencimiento}
           
         />
+           {
+          errors.vencimiento && <Text style={{ fontSize:10, color: 'red' }}>{errors.vencimiento}</Text>
+       }
         <TextInput
           name="cvv"
           placeholder="C.V.V."
@@ -628,7 +652,9 @@ const CargarBilletera = ({route, navigation}) =>
           value={values.cvv}
           secureTextEntry
         />
-        
+         {
+          errors.cvv && <Text style={{ fontSize:10, color: 'red' }}>{errors.cvv}</Text>
+       }
         </View>
         
     
