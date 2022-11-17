@@ -23,6 +23,8 @@ const minyear = 2004;
 const tarjetaSchema= yup.object().shape({
   monto: yup
   .number().required('Indique monto'),
+  tarjeta: yup
+  .string().test('tarjeta', 'debe tener 16 digitos', values=> values.toString().length === 16 ).required('ingrese tarjeta'),
 })
 
 const iniciarSesionSchema = yup.object().shape({
@@ -593,7 +595,9 @@ const CargarBilletera = ({route, navigation}) =>
          value={values.tarjeta}
          keyboardType="numeric"
        />
-       
+        {
+          errors.tarjeta && <Text style={{ fontSize: 10, color: 'red' }}>{errors.tarjeta}</Text>
+       }
        <TextInput
          name="nombre"
          placeholder="Nombre completo como aparece en la tarjeta"
