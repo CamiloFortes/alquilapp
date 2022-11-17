@@ -24,7 +24,10 @@ const tarjetaSchema= yup.object().shape({
   monto: yup
   .number().required('Indique monto'),
   tarjeta: yup
-  .string().test('tarjeta', 'debe tener 16 digitos', values=> values.toString().length === 16 ).required('ingrese tarjeta'),
+  .string()
+  .min(5, 'debe tener 5 caracteres')
+  .max(5, 'debe tener 5 caracteres' )
+  .required('indique'),
 })
 
 const iniciarSesionSchema = yup.object().shape({
