@@ -163,9 +163,7 @@ const Middle = (props) =>
 {
   return(
     <View style={styles.middle}>
-    { //<Map navigation={props.navigation}></Map>
-    } 
-    <Text>Placeholder Map</Text> 
+    <Map navigation={props.navigation}></Map>
     </View>    
   );
 }
