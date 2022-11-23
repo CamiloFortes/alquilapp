@@ -209,6 +209,9 @@ fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/'+id+'/')
     .then(response=>response.json())
     .then(data=>setUsuario(data))    
 }
+useEffect(() => {
+  getDataUser()
+}, [])
 return (
   
 <View>
