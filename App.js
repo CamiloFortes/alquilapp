@@ -41,7 +41,7 @@ const tarjetaSchema= yup.object().shape({
   vencimiento: yup
   .date()
   .default(new Date(yytar, mmtar))
-  .min(yytar, `La fecha debe ser como minimo ${yytar+ '/' +mmtar}`)
+  .min(yytar,mmtar, `La fecha debe ser como minimo ${yytar+ '/' +mmtar}`)
   .required('End Date required'),
 })
 
