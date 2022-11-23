@@ -638,6 +638,7 @@ const CargarBilletera = ({route, navigation}) =>
           errors.nombre && <Text style={{ fontSize: 10, color: 'red' }}>{errors.nombre}</Text>
        }
         <View style={styles.viewwallet}>
+        <View style={{width:'50%',justifyContent:"center",alignItems:"center"}}>
         <TextInput
          name="vencimiento"
          placeholder="Vencimiento (MM/YY)"
@@ -650,6 +651,8 @@ const CargarBilletera = ({route, navigation}) =>
            {
           errors.vencimiento && <Text style={{ fontSize:10, color: 'red' }}>{errors.vencimiento}</Text>
        }
+        </View>
+        <View style={{width:'50%',justifyContent:"center",alignItems:"center"}}>
         <TextInput
           name="cvv"
           placeholder="C.V.V."
@@ -662,6 +665,8 @@ const CargarBilletera = ({route, navigation}) =>
          {
           errors.cvv && <Text style={{ fontSize:10, color: 'red' }}>{errors.cvv}</Text>
        }
+        </View>
+        
         </View>
         
     
