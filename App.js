@@ -148,7 +148,7 @@ const Top = (props) =>
         <Text style={styles.titulo}>Alquilapp</Text>    
       </View>
       <View style={styles.topViewB}>
-        <Pressable style={styles.botonesTop} onPress={()=>cerrar()}>
+        <Pressable style={styles.botonesTop} onPress={()=>  props.navigation.navigate('mostrarMonto',{id:props.id})}>
           <Image source={require('./src/profile.png')} style={[{width: 30, height: 30, margin: 5}]} />
         </Pressable>    
         <Pressable style={styles.botonesTop} onPress={() => props.navigation.navigate('billetera',{id:props.id})}>
@@ -200,12 +200,19 @@ const ConfigurarUsuario = ({navigation}) =>
     </View>
   )
 }
-const mostrarMonto = ({navigation}) =>
+const mostrarMonto = ({route,navigation}) =>
 {
+const {id} = route.params
+const [usuario,setUsuario]=useState([])
+const getDataUser=()=>{
+fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/'+id+'/')
+    .then(response=>response.json())
+    .then(data=>setUsuario(data))    
+}
 return (
   
 <View>
-  <Text> 20 pesos </Text>
+  <Text> {usuario.saldo} </Text>
 </View>
 )
 }
@@ -803,7 +810,7 @@ const AlquilarAuto = ({route, navigation}) =>
   const [value,setValue] = useState(true)
   return(
     <View>
-    <Top navigation={navigation}/> 
+    <Top navigation={navigation} id={id}/>  
     <View style={styles.alquilar}>
       <View style={{height:'20%',justifyContent:'center'}}>
         <Text style={{textAlign:'center',fontSize:60,alignSelf:'center'}}>{auto.modelo}</Text>
