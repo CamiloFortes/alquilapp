@@ -15,7 +15,7 @@ const Lista = (props) =>
 {
     const [usersData,setUsersData]=useState([])
     const getData=()=>{
-    fetch('https://da57-181-164-169-185.sa.ngrok.io/api/autos/?format=json')
+    fetch('https://8173-181-164-169-185.sa.ngrok.io/api/autos/')
         .then(response=>response.json())
         .then(data=>setUsersData(data))
         
