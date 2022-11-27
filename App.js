@@ -205,23 +205,22 @@ const ConfigurarUsuario = ({navigation}) =>
 const MostrarMonto = ({route,navigation}) =>
 {
   const {adv,idUser} = route.params
-  const cerrar = (props) =>
-{
-  props.navigation.navigate('sinloguear')
-}
-const {id} = route.params
-const [usuario,setUsuario]=useState([])
-const getDataUser=()=>{
   
-fetch(url + '/api/usuarios/'+id+'/')
-    .then(response=>response.json())
-    .then(data=>setUsuario(data))    
-}
-
+  const {id} = route.params
+  const [usuario,setUsuario]=useState([])
+  const getDataUser=()=>{
+    
+  fetch(url + '/api/usuarios/'+id+'/')
+      .then(response=>response.json())
+      .then(data=>setUsuario(data))    
+  }
+  useEffect(() => {
+    getDataUser()
+  }, []);
 return (
   
 <View style={styles.monto}>
-  <Text> {usuario.saldo} </Text>
+  <Text style={{fontSize:45, marginBottom:'20%'}}> {"Saldo: $"+usuario.saldo} </Text>
 <Button title='cerrar sesion' onPress={() => navigation.navigate('sinloguear') }></Button>
 </View>
 )
@@ -960,11 +959,13 @@ const styles = StyleSheet.create(
   },
   monto:
   {
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#874C62',
     padding: 10,
     elevation: 10,
     width: '100%',
+    height: '100%'
   },
   loginContainer: {
     width: '100%',
