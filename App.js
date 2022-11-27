@@ -226,7 +226,7 @@ return (
   
 <View style={styles.monto}>
   <Text style={{fontSize:45, marginBottom:'20%'}}> {"Saldo: $"+usuario.saldo} </Text>
-<Button title='cerrar sesion' onPress={() => navigation.navigate('sinloguear') }></Button>
+<Button color = "#F2D388" title='cerrar sesion' onPress={() => navigation.navigate('sinloguear') }></Button>
 </View>
 )
 }
@@ -328,7 +328,8 @@ const IniciarSesion = ({navigation}) =>
    
        <Button
          onPress={handleSubmit}
-         title="LOGIN"
+         color = "#F2D388"
+         title="Iniciar"
          disabled={!isValid}
        />
      </>
