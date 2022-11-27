@@ -579,7 +579,7 @@ const SinLoguear = ({navigation}) =>
     <View style={styles.sinloguear}>
         <View style={styles.sinloguearc}>
           <Image source={require('./src/auto.png')} style={[{width: 60, height: 60, margin: 25},styles.titulo]} />
-          <Text style={styles.titulo2}>{text}</Text>
+          <Text style={styles.titulo2}>Alquilapp</Text>
         </View>
         <View style={{padding: '5%', height: '20%'}}>
           <Button onPress={() => navigation.navigate('iniciarsesion')} title="INICIAR SESIÓN" color="#F2D388"></Button>
