@@ -211,9 +211,7 @@ fetch(url + '/api/usuarios/'+id+'/')
     .then(response=>response.json())
     .then(data=>setUsuario(data))    
 }
-useEffect(() => {
-  getDataUser()
-}, [])
+
 return (
   
 <View style={styles.monto}>
@@ -858,6 +856,9 @@ const Advertencia = ({route,navigation}) =>
 const PantallaDeCarga = ({ navigation}) =>
 {
   const [usuario,setUsuario]=useState([])
+  useEffect(() => {
+    requestLocationPermission
+  }, [])
   const getData = async (value) => {
     try {
       const value = await AsyncStorage.getItem('usuario')
