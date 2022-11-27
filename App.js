@@ -20,8 +20,10 @@ const url = "https://8173-181-164-169-185.sa.ngrok.io"
 const minday = 11;
 const minmonth = 11;
 const minyear = 2004;
+
 const yytar= 2022;
 const mmtar= 11;
+const vencm = new Date(yytar,mmtar);
 const tarjetaSchema= yup.object().shape({
   monto: yup
   .number().required('Indique monto'),
@@ -41,7 +43,7 @@ const tarjetaSchema= yup.object().shape({
   vencimiento: yup
   .date()
   .default(new Date(yytar, mmtar))
-  .min(yytar,mmtar, `La fecha debe ser como minimo ${yytar+ '/' +mmtar}`)
+  .min(vencm,`La fecha debe ser como minimo ${yytar+ '-' +mmtar} `)
   .required('End Date required'),
 })
 
