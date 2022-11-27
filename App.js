@@ -217,6 +217,11 @@ const MostrarMonto = ({route,navigation}) =>
   useEffect(() => {
     getDataUser()
   }, []);
+ 
+    
+  
+
+
 return (
   
 <View style={styles.monto}>
@@ -616,10 +621,8 @@ const CargarBilletera = ({route, navigation}) =>
     validationSchema={tarjetaSchema}
     initialValues={{ monto: '',tarjeta: '', nombre:'',vencimiento:'',cvv:''}}
     onSubmit={ values => {
-        
+      navigation.navigate('advertencia',{adv:'Pago realizado con exito.',idUser:id})  
       getData()
-     
-
       fetch(url + '/api/usuarios/'+id+'/', {
       method: 'PATCH',
       body: JSON.stringify({
@@ -628,7 +631,10 @@ const CargarBilletera = ({route, navigation}) =>
       headers: {
         'Content-type': 'application/json; charset=UTF-8',
       },
-    })
+      
+    }
+
+    )
       .then((response) => response.json())
       .then((json) => console.log(json));
     }}
@@ -682,7 +688,7 @@ const CargarBilletera = ({route, navigation}) =>
         <View style={{width:'50%',justifyContent:"center",alignItems:"center"}}>
         <TextInput
          name="vencimiento"
-         placeholder="Vencimiento (MM/YY)"
+         placeholder="Vencimiento YYYY-MM"
           style={styles.textInput2}
           onChangeText={handleChange('vencimiento')}
           onBlur={handleBlur('vencimiento')}
@@ -874,7 +880,7 @@ const Advertencia = ({route,navigation}) =>
   return(
     <View style={{height:'100%',backgroundColor: '#874C62',justifyContent:'center'}}>
       <Text>{adv}</Text>
-      <Button title='Finalizar servicio' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
+      <Button title='Volver al menu principal' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
 
 
     </View>
