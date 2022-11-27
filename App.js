@@ -16,7 +16,7 @@ AppRegistry.registerComponent('main',() => App);
 //Variables aldi
 const max = 2022;
 
-
+const url = "https://8173-181-164-169-185.sa.ngrok.io"
 const minday = 11;
 const minmonth = 11;
 const minyear = 2004;
@@ -205,7 +205,7 @@ const mostrarMonto = ({route,navigation}) =>
 const {id} = route.params
 const [usuario,setUsuario]=useState([])
 const getDataUser=()=>{
-fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/'+id+'/')
+fetch(url + '/api/usuarios/'+id+'/')
     .then(response=>response.json())
     .then(data=>setUsuario(data))    
 }
