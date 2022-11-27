@@ -137,11 +137,7 @@ const Top = (props) =>
       // saving error
     }
   }
-  const cerrar = () =>
-  {
-    storeData(null)
-    props.navigation.navigate('sinloguear')
-  }
+ 
   return(
     <View style={styles.topView}>
       <View style={styles.topViewA}>
@@ -201,8 +197,13 @@ const ConfigurarUsuario = ({navigation}) =>
     </View>
   )
 }
+
 const mostrarMonto = ({route,navigation}) =>
 {
+  const cerrar = (props) =>
+{
+  props.navigation.navigate('sinloguear')
+}
 const {id} = route.params
 const [usuario,setUsuario]=useState([])
 const getDataUser=()=>{
@@ -215,8 +216,12 @@ useEffect(() => {
 }, [])
 return (
   
-<View>
+<View style={styles.monto}>
   <Text> {usuario.saldo} </Text>
+  <Button
+  title="cerrar sesion" 
+  onPress={() => cerrar(props)}
+  />
 </View>
 )
 }
@@ -377,7 +382,7 @@ const Registrar = ({navigation}) =>
     }
   }
  
-  
+
   const getData=(values)=>{
   fetch(url + '/api/usuarios/') 
       .then(response=>response.json())
@@ -924,6 +929,14 @@ const styles = StyleSheet.create(
   {
     backgroundColor: '#874C62',
     height: '100%'
+  },
+  monto:
+  {
+    alignItems: 'center',
+    backgroundColor: '#874C62',
+    padding: 10,
+    elevation: 10,
+    width: '100%',
   },
   loginContainer: {
     width: '100%',
