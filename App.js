@@ -204,6 +204,7 @@ const ConfigurarUsuario = ({navigation}) =>
 }
 const MostrarMonto = ({route,navigation}) =>
 {
+  const {adv,idUser} = route.params
   const cerrar = (props) =>
 {
   props.navigation.navigate('sinloguear')
@@ -211,6 +212,7 @@ const MostrarMonto = ({route,navigation}) =>
 const {id} = route.params
 const [usuario,setUsuario]=useState([])
 const getDataUser=()=>{
+  
 fetch(url + '/api/usuarios/'+id+'/')
     .then(response=>response.json())
     .then(data=>setUsuario(data))    
@@ -220,10 +222,7 @@ return (
   
 <View style={styles.monto}>
   <Text> {usuario.saldo} </Text>
-  <Button
-  title="cerrar sesion" 
-  onPress={() => cerrar(props)}
-  />
+<Button title='cerrar sesion' onPress={() => navigation.navigate('sinloguear') }></Button>
 </View>
 )
 }
@@ -738,6 +737,7 @@ const AlquilandoAuto = ({route, navigation}) =>
             onPress={() => alert('hello')}
             size={20}
           />
+            <Button title='finalizar servicio' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
       </View>
   )
 }
@@ -875,7 +875,7 @@ const Advertencia = ({route,navigation}) =>
   return(
     <View style={{height:'100%',backgroundColor: '#874C62',justifyContent:'center'}}>
       <Text>{adv}</Text>
-      <Button title='IR AL MENU' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
+      <Button title='Finalizar servicio' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
 
 
     </View>

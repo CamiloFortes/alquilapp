@@ -1,7 +1,11 @@
 import React,{useState,useEffect} from 'react';
 import {StyleSheet,View, Text,Image,ScrollView,Button } from 'react-native';
+<<<<<<< HEAD
+const url= "https://4873-181-164-170-247.sa.ngrok.io";
+=======
 import { getDistance } from 'geolib';
 import * as Location from 'expo-location';
+>>>>>>> 003f73fb48c5a3b9a32dd535441dafa96f64d491
 const AutoComp = (props) =>
 {
     return(
@@ -29,7 +33,11 @@ const Lista = (props) =>
             setUsersData(data)
     }
     const getData=()=>{
+<<<<<<< HEAD
+    fetch(url + '/api/autos/')
+=======
     fetch('https://4873-181-164-170-247.sa.ngrok.io/api/autos/')
+>>>>>>> 003f73fb48c5a3b9a32dd535441dafa96f64d491
         .then(response=>response.json())
         .then(data=>addDistance(data))
         
