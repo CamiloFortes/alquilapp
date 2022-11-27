@@ -1,5 +1,6 @@
 import React,{useState,useEffect} from 'react';
 import {StyleSheet,View, Text,Image,ScrollView,Button } from 'react-native';
+const url= "https://4873-181-164-170-247.sa.ngrok.io";
 const AutoComp = (props) =>
 {
     return(
@@ -15,7 +16,7 @@ const Lista = (props) =>
 {
     const [usersData,setUsersData]=useState([])
     const getData=()=>{
-    fetch('https://8173-181-164-169-185.sa.ngrok.io/api/autos/')
+    fetch(url + '/api/autos/')
         .then(response=>response.json())
         .then(data=>setUsersData(data))
         
