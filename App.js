@@ -621,7 +621,7 @@ const CargarBilletera = ({route, navigation}) =>
     validationSchema={tarjetaSchema}
     initialValues={{ monto: '',tarjeta: '', nombre:'',vencimiento:'',cvv:''}}
     onSubmit={ values => {
-      navigation.navigate('advertencia',{adv:'Pago realizado con exito.',idUser:id})  
+      navigation.navigate('advertencia',{adv:'Pago realizado con éxito.',idUser:id})  
       getData()
       fetch(url + '/api/usuarios/'+id+'/', {
       method: 'PATCH',
@@ -799,7 +799,7 @@ const AlquilarAuto = ({route, navigation}) =>
       if ((data[i].auto == id) && (data[i].estado==1))
       {
         b = true
-        navigation.navigate('advertencia',{adv:'Auto ya en alquiler',idUser:idUser})
+        navigation.navigate('advertencia',{adv:'Auto ya en alquiler.',idUser:idUser})
       }
 
     }
@@ -878,9 +878,9 @@ const Advertencia = ({route,navigation}) =>
 {
   const {adv,idUser} = route.params
   return(
-    <View style={{height:'100%',backgroundColor: '#874C62',justifyContent:'center'}}>
-      <Text>{adv}</Text>
-      <Button title='Volver al menu principal' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
+    <View style={{height:'100%',backgroundColor: '#874C62',justifyContent:'center',alignItems:'center'}}>
+      <Text style={{fontSize:40, marginBottom:'20%',textAlign:'center'}}>{adv}</Text>
+      <Button title='Volver al menú principal' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
 
 
     </View>
