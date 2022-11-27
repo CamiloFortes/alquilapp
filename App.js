@@ -1,15 +1,15 @@
-
 import Slider from '@react-native-community/slider';
-import { ScrollView,SafeAreaView, StyleSheet, StatusBar,TextInput, Button, Text, View, Image,PermissionsAndroid, Pressable} from 'react-native';
+import { ScrollView,SafeAreaView, StyleSheet,Platform,  ToastAndroid, StatusBar,TextInput, Button, Text, View, Image,PermissionsAndroid, Pressable} from 'react-native';
 import { NavigationContainer, useNavigationState} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
 import Map from './Components/Map.js'
 import Lista from './Components/Lista.js'
 import React, { useState, PropTypes,useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Formik } from 'formik'
 import * as yup from 'yup'
+import * as Location from 'expo-location';
 import { AppRegistry } from 'react-native';
 import CountDown from 'react-native-countdown-component';
 AppRegistry.registerComponent('main',() => App);
@@ -93,27 +93,7 @@ fechalic: yup
 .required('End Date required'),
 })
 
-export async function requestLocationPermission() 
-{
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        'title': 'Example App',
-        'message': 'Example App access to your location '
-      }
-    )
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log("You can use the location")
-      alert("You can use the location");
-    } else {
-      console.log("location permission denied")
-      alert("Location permission denied");
-    }
-  } catch (err) {
-    console.warn(err)
-  }
-}
+
 const Stack = createNativeStackNavigator();
 
 const TopB = (props) =>
@@ -164,7 +144,7 @@ const Middle = (props) =>
 {
   return(
     <View style={styles.middle}>
-    <Map navigation={props.navigation}></Map>
+    <Map navigation={props.navigation} location={props.location}></Map>
     </View>    
   );
 }
@@ -172,20 +152,45 @@ const Bottom = (props) =>
 {
   return(
     <View style={styles.bottom}>
-    <Lista id={props.id} navigation={props.navigation}></Lista> 
+    <Lista id={props.id} navigation={props.navigation} location={props.location}></Lista> 
     </View>    
   );
 }
 const MenuPrincipal = ({route, navigation }) =>
 {
   const {id} = route.params
-  return(
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  useEffect(() => {
+    (async () => {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+  if (location != null)
+  {
+    return(
+      <View>
+          <Top  navigation={navigation} id={id}/>   
+          <Middle location={location} navigation={navigation}/>               
+          <Bottom location={location} id={id} navigation={navigation}/>        
+      </View>
+    )
+  }
+  else
+  {
     <View>
-        <Top navigation={navigation} id={id}/>   
-        <Middle navigation={navigation}/>               
-        <Bottom id={id} navigation={navigation}/>         
-    </View>
-  )
+          <Top navigation={navigation} id={id}/> 
+    </View>   
+  }
+  
 }
 const ConfigurarUsuario = ({navigation}) =>
 {    
@@ -201,7 +206,7 @@ const ConfigurarUsuario = ({navigation}) =>
     </View>
   )
 }
-const mostrarMonto = ({route,navigation}) =>
+const MostrarMonto = ({route,navigation}) =>
 {
 const {id} = route.params
 const [usuario,setUsuario]=useState([])
@@ -540,12 +545,37 @@ const Registrar = ({navigation}) =>
   )
 }
 const SinLoguear = ({navigation}) =>
-{    
+{ 
+  //LOCATION TEST
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  useEffect(() => {
+    (async () => {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+  let text = 'Waiting..';
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    
+      console.debug(location)
+
+    
+  }
   return(
     <View style={styles.sinloguear}>
         <View style={styles.sinloguearc}>
           <Image source={require('./src/auto.png')} style={[{width: 60, height: 60, margin: 25},styles.titulo]} />
-          <Text style={styles.titulo2}>Alquilapp</Text>
+          <Text style={styles.titulo2}>{text}</Text>
         </View>
         <View style={{padding: '5%', height: '20%'}}>
           <Button onPress={() => navigation.navigate('iniciarsesion')} title="INICIAR SESIÓN" color="#F2D388"></Button>
@@ -851,9 +881,7 @@ const Advertencia = ({route,navigation}) =>
 const PantallaDeCarga = ({ navigation}) =>
 {
   const [usuario,setUsuario]=useState([])
-  useEffect(() => {
-    requestLocationPermission
-  }, [])
+  
   const getData = async (value) => {
     try {
       const value = await AsyncStorage.getItem('usuario')
@@ -909,7 +937,7 @@ export default function App() {
         <Stack.Screen name="sinloguear" component={SinLoguear}></Stack.Screen>                        
         <Stack.Screen name="registrar" component={Registrar}></Stack.Screen> 
         <Stack.Screen name="iniciarsesion" component={IniciarSesion}></Stack.Screen> 
-        <Stack.Screen name="mostrarMonto" component={mostrarMonto}></Stack.Screen> 
+        <Stack.Screen name="mostrarMonto" component={MostrarMonto}></Stack.Screen> 
         <Stack.Screen name="configurar" component={ConfigurarUsuario}></Stack.Screen> 
         <Stack.Screen name="billetera" component={CargarBilletera}></Stack.Screen>        
         <Stack.Screen name="compra" component={AlquilarAuto}></Stack.Screen>
