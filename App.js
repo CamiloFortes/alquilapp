@@ -15,8 +15,7 @@ import CountDown from 'react-native-countdown-component';
 AppRegistry.registerComponent('main',() => App);
 //Variables aldi
 const max = 2022;
-
-const url = "https://8173-181-164-169-185.sa.ngrok.io"
+const url = "https://4873-181-164-170-247.sa.ngrok.io";
 const minday = 11;
 const minmonth = 11;
 const minyear = 2004;
@@ -259,7 +258,7 @@ const IniciarSesion = ({navigation}) =>
     
     const getDataB=(values)=>{    
     
-      fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/')
+      fetch(url + '/api/usuarios/')
         .then(response=>response.json())
         .then(data=>validarUsuario(data,values)) 
           
@@ -350,7 +349,7 @@ const Registrar = ({navigation}) =>
 
     if(!b)
     {
-      fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/', 
+      fetch(url + '/api/usuarios/', 
       {
         method: 'POST',
         headers: 
@@ -378,7 +377,7 @@ const Registrar = ({navigation}) =>
  
   
   const getData=(values)=>{
-  fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/') 
+  fetch(url + '/api/usuarios/') 
       .then(response=>response.json())
       .then(data=>manageData(data,values))
         
@@ -564,7 +563,7 @@ const CargarBilletera = ({route, navigation}) =>
   const {id} = route.params
   const [user,setUser]=useState([])
   const getData=()=>{
-  fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/'+id+'/') 
+  fetch(url + '/api/usuarios/'+id+'/') 
       .then(response=>response.json())
       .then(data=>setUser(data))
         
@@ -589,7 +588,7 @@ const CargarBilletera = ({route, navigation}) =>
       getData()
      
 
-      fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/'+id+'/', {
+      fetch(url + '/api/usuarios/'+id+'/', {
       method: 'PATCH',
       body: JSON.stringify({
         saldo: parseInt(user.saldo) + parseInt(values.monto),
@@ -721,7 +720,7 @@ const AlquilarAuto = ({route, navigation}) =>
     var numberOfMlSeconds = currentDateObj.getTime();
     var addMlSeconds = value * 60 * 60000;
     var newDateObj = new Date(numberOfMlSeconds + addMlSeconds);
-    fetch('https://8173-181-164-169-185.sa.ngrok.io/api/servicios/', 
+    fetch(url + '/api/servicios/', 
       {
         method: 'POST',
         headers: 
@@ -738,7 +737,7 @@ const AlquilarAuto = ({route, navigation}) =>
         })
       }
       )
-      fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/'+idUser+'/', {
+      fetch(url + '/api/usuarios/'+idUser+'/', {
         method: 'PATCH',
         body: JSON.stringify({
           saldo: parseInt(usuario.saldo) - a,
@@ -781,14 +780,14 @@ const AlquilarAuto = ({route, navigation}) =>
   }
   
     const getDataB=()=>{
-    fetch('https://8173-181-164-169-185.sa.ngrok.io/api/servicios/')
+    fetch(url + '/api/servicios/')
         .then(response=>response.json())
         .then(data=>admservicios(data))
         
     }
     const [usuario,setUsuario]=useState([])
     const getDataUser=()=>{
-    fetch('https://8173-181-164-169-185.sa.ngrok.io/api/usuarios/'+idUser+'/')
+    fetch(url + '/api/usuarios/'+idUser+'/')
         .then(response=>response.json())
         .then(data=>setUsuario(data))
         
@@ -799,7 +798,7 @@ const AlquilarAuto = ({route, navigation}) =>
  
     const [auto,setAuto]=useState([])
     const getData=()=>{
-    fetch('https://8173-181-164-169-185.sa.ngrok.io/api/autos/'+id+'/')
+    fetch(url + '/api/autos/'+id+'/')
         .then(response=>response.json())
         .then(data=>setAuto(data))
         
