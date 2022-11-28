@@ -913,9 +913,9 @@ const AlquilarAuto = ({route, navigation}) =>
           navigation.navigate('advertencia',{adv:'Auto ya en alquiler.',idUser:idUser})
         }
         const fecha = new Date(data[i].fechafin)
-        console.log(fecha)
+        console.log("FECHA FIN: "+data[i].fechafin)
         const fecha1 = new Date()
-        console.log(fecha1)
+        console.log("FECHA ACTUAL: "+fecha1)
         
         
       }
