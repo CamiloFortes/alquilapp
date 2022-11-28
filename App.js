@@ -909,7 +909,7 @@ const AlquilarAuto = ({route, navigation}) =>
       if ((data[i].auto == id))
       {
         if (data[i].estado==1)
-        {
+        {  
           navigation.navigate('advertencia',{adv:'Auto ya en alquiler.',idUser:idUser})
         }
         const fecha = new Date(data[i].fechafin)
