@@ -1,5 +1,5 @@
 import Slider from '@react-native-community/slider';
-import { ScrollView,SafeAreaView, StyleSheet,Platform,  ToastAndroid, StatusBar,TextInput, Button, Text, View, Image,PermissionsAndroid, Pressable} from 'react-native';
+import { ScrollView,Alert,SafeAreaView, StyleSheet,Platform,  ToastAndroid, StatusBar,TextInput, Button, Text, View, Image,PermissionsAndroid, Pressable} from 'react-native';
 import { NavigationContainer, useNavigationState} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
@@ -9,6 +9,7 @@ import React, { useState, PropTypes,useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Formik } from 'formik'
 import * as yup from 'yup'
+import { getDistance } from 'geolib';
 import * as Location from 'expo-location';
 import { AppRegistry } from 'react-native';
 import CountDown from 'react-native-countdown-component';
@@ -140,7 +141,7 @@ const Middle = (props) =>
 {
   return(
     <View style={styles.middle}>
-    <Map navigation={props.navigation} location={props.location}></Map>
+    <Map navigation={props.navigation} location={props.location} id={props.id}></Map>
     </View>    
   );
 }
@@ -175,7 +176,7 @@ const MenuPrincipal = ({route, navigation }) =>
     return(
       <View>
           <Top  navigation={navigation} id={id}/>   
-          <Middle location={location} navigation={navigation}/>               
+          <Middle location={location} id={id} navigation={navigation}/>               
           <Bottom location={location} id={id} navigation={navigation}/>        
       </View>
     )
@@ -734,8 +735,16 @@ const CargarBilletera = ({route, navigation}) =>
 }
 const AlquilandoAuto = ({route, navigation}) =>
 {
+  console.log("hola")
   const [overflow,setOverflow]=useState(false)
-  const {id,time} = route.params
+  const {id,time,idAuto} = route.params
+  Alert.alert(
+    "Advertencia!",
+    "Se cobrará un cargo adicional si no se finaliza el servicio dentro del rango de tiempo o si deja el vehículo fuera del casco de la ciudad.",
+    [
+      { text: "OK" }
+    ]
+  );
   const admservicios = (data) =>
   {
     var b = false
@@ -757,14 +766,70 @@ const AlquilandoAuto = ({route, navigation}) =>
         })
           .then((response) => response.json())
           .then((json) => console.log(json));
-      
-       navigation.navigate('menu',{id:id})
+       getData()
       }
 
     }
     
     
   }
+    const setAuto = (data) =>
+    {
+      const distancia = getDistance({latitude:-34.92134316756183,longitude:-57.95451348835805},{latitude:data.lat,longitude:data.long})
+      if (distancia > 4000)
+      {
+        Alert.alert(
+          "Advertencia!",
+          "Usted recibirá una multa por dejar el coche fuera del casco.",
+          [
+            { text: "OK" ,onPress: () => {
+              fetch(url + '/api/usuarios/'+id+'/', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                  saldo: parseInt(usuario.saldo) - 500,
+                }),
+                headers: {
+                  'Content-type': 'application/json; charset=UTF-8',
+                },                
+              }          
+              )
+                .then((response) => response.json())
+                .then((json) => console.log(json));
+
+            }}
+          ]
+        );
+        navigation.navigate('menu',{id:id})
+      }
+      else
+      {
+        Alert.alert(
+          "Muchas Gracias!",
+          "Viaje finalizado con éxito.",
+          [
+            { text: "OK",onPress: () => {
+              navigation.navigate('menu',{id:id})
+            }}
+          ]
+        );
+      }
+    }
+    const getData=()=>{
+    fetch(url + '/api/autos/'+idAuto+'/')
+        .then(response=>response.json())
+        .then(data=>setAuto(data))
+        
+    }
+    const [usuario,setUsuario]=useState([])
+    const getDataUser=()=>{
+    fetch(url + '/api/usuarios/'+id+'/')
+        .then(response=>response.json())
+        .then(data=>setUsuario(data))
+        
+    }
+    useEffect(() => {
+        getDataUser()
+     }, [])
   const finalizarServicio = () => 
   {
     fetch(url + '/api/servicios/')
@@ -785,7 +850,7 @@ const AlquilandoAuto = ({route, navigation}) =>
           />
           
           
-          <Button title='finalizar servicio' onPress={() => finalizarServicio()}></Button>
+          <Button color="#F2D388" title='finalizar servicio' onPress={() => finalizarServicio()}></Button>
       </View>
   )
 }
@@ -831,7 +896,8 @@ const AlquilarAuto = ({route, navigation}) =>
       })
         .then((response) => response.json())
         .then((json) => console.log(json));
-      navigation.navigate('alquilando',{id:idUser,time:value*3600});
+     
+      navigation.navigate('alquilando',{id:idUser,time:value*3600,idAuto:id});
   }
   const admservicios = (data) =>
   {
@@ -840,25 +906,31 @@ const AlquilarAuto = ({route, navigation}) =>
     for (var i=0;i<data.length;i++)
     {
       
-      if ((data[i].auto == id) && (data[i].estado==1))
+      if ((data[i].auto == id))
       {
-        b = true
-        navigation.navigate('advertencia',{adv:'Auto ya en alquiler.',idUser:idUser})
+        if (data[i].estado==1)
+        {
+          navigation.navigate('advertencia',{adv:'Auto ya en alquiler.',idUser:idUser})
+        }
+        const fecha = new Date(data[i].fechafin)
+        console.log(fecha)
+        const fecha1 = new Date()
+        console.log(fecha1)
+        
+        
       }
 
-    }
-    if (!b)
-    {
+    }   
       
-      if (usuario.saldo<value*200)
-      {
-          setError('Saldo insuficiente')
-      }
-      else
-      {
-        pagar(value*200)
-      }
+    if (usuario.saldo<value*200)
+    {
+        setError('Saldo insuficiente')
     }
+    else
+    {
+      pagar(value*200)
+    }
+    
     
   }
   

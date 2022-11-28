@@ -29,8 +29,24 @@ const Lista = (props) =>
                 data.sort((a,b)=>a.distance-b.distance)
                 
             }
-            setUsersData(data)
+            listaFinal(data)
     }
+
+    const listaFinal = (data) =>
+    {
+      var arreglo = []
+      for (var i= 0; i<data.length;i++)
+      {
+        const distancia = getDistance({latitude:-34.92134316756183,longitude:-57.95451348835805},{latitude:data[i].lat,longitude:data[i].long})
+        console.log(distancia)
+        if (distancia<4000)
+        {
+          arreglo.push(data[i])
+        }
+      }
+      setUsersData(arreglo)
+    }
+
     const getData=()=>{
     fetch(url+'/api/autos/')
         .then(response=>response.json())
