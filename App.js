@@ -735,23 +735,27 @@ const CargarBilletera = ({route, navigation}) =>
 }
 const AlquilandoAuto = ({route, navigation}) =>
 {
-  console.log("hola")
   const [overflow,setOverflow]=useState(false)
   const {id,time,idAuto} = route.params
-  Alert.alert(
-    "Advertencia!",
-    "Se cobrará un cargo adicional si no se finaliza el servicio dentro del rango de tiempo o si deja el vehículo fuera del casco de la ciudad.",
-    [
-      { text: "OK" }
-    ]
-  );
+  useEffect(() => {
+    Alert.alert(
+      "Advertencia!",
+      "Se cobrará un cargo adicional si no se finaliza el servicio dentro del rango de tiempo o si deja el vehículo fuera del casco de la ciudad.",
+      [
+        { text: "OK" }
+      ]
+    );
+ }, [])
+  
+
   const admservicios = (data) =>
   {
     var b = false
-    
+    const hoy = new Date()
+
     for (var i=0;i<data.length;i++)
     {
-      console.log(data[i].usuario +' '+id+' '+data[i].estado)
+     // console.log(data[i].usuario +' '+id+' '+data[i].estado)
       if ((data[i].usuario == id) && (data[i].estado==1))
       {
 
@@ -759,6 +763,7 @@ const AlquilandoAuto = ({route, navigation}) =>
           method: 'PATCH',
           body: JSON.stringify({
             estado: 0,
+            fecha_fin: hoy.toJSON()
           }),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',
@@ -799,6 +804,30 @@ const AlquilandoAuto = ({route, navigation}) =>
             }}
           ]
         );
+        if (overflow)
+        {
+          Alert.alert(
+            "Advertencia!",
+            "Usted recibirá una multa por no cumplir el plazo de tiempo.",
+            [
+              { text: "OK" ,onPress: () => {
+                fetch(url + '/api/usuarios/'+id+'/', {
+                  method: 'PATCH',
+                  body: JSON.stringify({
+                    saldo: parseInt(usuario.saldo) - 500,
+                  }),
+                  headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                  },                
+                }          
+                )
+                  .then((response) => response.json())
+                  .then((json) => console.log(json));
+  
+              }}
+            ]
+          );
+        }
         navigation.navigate('menu',{id:id})
       }
       else
@@ -808,6 +837,30 @@ const AlquilandoAuto = ({route, navigation}) =>
           "Viaje finalizado con éxito.",
           [
             { text: "OK",onPress: () => {
+               if (overflow)
+              {
+                Alert.alert(
+                  "Advertencia!",
+                  "Usted recibirá una multa por no cumplir el plazo de tiempo.",
+                  [
+                    { text: "OK" ,onPress: () => {
+                      fetch(url + '/api/usuarios/'+id+'/', {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                          saldo: parseInt(usuario.saldo) - 500,
+                        }),
+                        headers: {
+                          'Content-type': 'application/json; charset=UTF-8',
+                        },                
+                      }          
+                      )
+                        .then((response) => response.json())
+                        .then((json) => console.log(json));
+        
+                    }}
+                  ]
+                );
+              }
               navigation.navigate('menu',{id:id})
             }}
           ]
@@ -842,9 +895,8 @@ const AlquilandoAuto = ({route, navigation}) =>
       <View style={{ backgroundColor:'#874C62', justifyContent:'center',height:'100%',alignItems:'center'}}>
           
           <CountDown
-            style={{marginBottom:'20%'}}
             until={time}
-            onFinish={() => alert('finished')}
+            onFinish={() => setOverflow(true)}
             onPress={() => alert('hello')}
             size={20}
           />
@@ -858,7 +910,7 @@ const AlquilarAuto = ({route, navigation}) =>
 {
   const {id,idUser} = route.params
   const [error,setError]=useState([])
-  
+  const iralmenu = () => navigation.navigate('advertencia',{adv:'Vehiculo alquilado recientemente',idUser:idUser})
   
   const pagar = (a) =>
   {
@@ -867,7 +919,7 @@ const AlquilarAuto = ({route, navigation}) =>
     var numberOfMlSeconds = currentDateObj.getTime();
     var addMlSeconds = value * 60 * 60000;
     var newDateObj = new Date(numberOfMlSeconds + addMlSeconds);
-    console.log(newDateObj)
+   // console.log(newDateObj)
     fetch(url + '/api/servicios/', 
       {
         method: 'POST',
@@ -897,7 +949,13 @@ const AlquilarAuto = ({route, navigation}) =>
         .then((response) => response.json())
         .then((json) => console.log(json));
      
+      if (value == 24 ){
+        navigation.navigate('alquilando',{id:idUser,time:15,idAuto:id});
+      }  
+      else
+      {
       navigation.navigate('alquilando',{id:idUser,time:value*3600,idAuto:id});
+      }
   }
   const admservicios = (data) =>
   {
@@ -911,27 +969,35 @@ const AlquilarAuto = ({route, navigation}) =>
         if (data[i].estado==1)
         {  
           navigation.navigate('advertencia',{adv:'Auto ya en alquiler.',idUser:idUser})
+          b=true
         }
-        const fecha = new Date(data[i].fechafin)
-        console.log("FECHA FIN: "+data[i].fechafin)
+
+        const fecha = new Date(data[i].fecha_fin)
         const fecha1 = new Date()
-        console.log("FECHA ACTUAL: "+fecha1)
-        
-        
+        const diffecha= Math.floor((fecha1 - fecha)/(1000))
+        console.log(("tipo de dato"+ typeof( diffecha)  ))
+        console.log(("diferencia: " +diffecha))
+        if ((diffecha < 10800) && (data[i].usuario == idUser))
+        {
+          b=true
+          iralmenu()
+          console.log(("entre" ))
+        }
       }
 
     }   
-      
-    if (usuario.saldo<value*200)
+    if (!b) 
+    {
+      if (usuario.saldo<value*200)
     {
         setError('Saldo insuficiente')
     }
-    else
+      else
     {
-      pagar(value*200)
+         pagar(value*200)
     }
     
-    
+  }
   }
   
     const getDataB=()=>{
