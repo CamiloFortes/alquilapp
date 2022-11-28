@@ -734,16 +734,58 @@ const CargarBilletera = ({route, navigation}) =>
 }
 const AlquilandoAuto = ({route, navigation}) =>
 {
-  const {idUser,time} = route.params
+  const [overflow,setOverflow]=useState(false)
+  const {id,time} = route.params
+  const admservicios = (data) =>
+  {
+    var b = false
+    
+    for (var i=0;i<data.length;i++)
+    {
+      console.log(data[i].usuario +' '+id+' '+data[i].estado)
+      if ((data[i].usuario == id) && (data[i].estado==1))
+      {
+
+        fetch(url + '/api/servicios/'+data[i].id+'/', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            estado: 0,
+          }),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        })
+          .then((response) => response.json())
+          .then((json) => console.log(json));
+      
+       navigation.navigate('menu',{id:id})
+      }
+
+    }
+    
+    
+  }
+  const finalizarServicio = () => 
+  {
+    fetch(url + '/api/servicios/')
+        .then(response=>response.json())
+        .then(data=>admservicios(data))
+    
+  }
+  
   return(
-      <View style={{ backgroundColor:'#874C62', justifyContent:'center'}}>
+      <View style={{ backgroundColor:'#874C62', justifyContent:'center',height:'100%',alignItems:'center'}}>
+          
           <CountDown
+            style={{marginBottom:'20%'}}
             until={time}
             onFinish={() => alert('finished')}
             onPress={() => alert('hello')}
             size={20}
           />
-            <Button title='finalizar servicio' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
+          
+          
+          <Button title='finalizar servicio' onPress={() => finalizarServicio()}></Button>
       </View>
   )
 }
@@ -760,6 +802,7 @@ const AlquilarAuto = ({route, navigation}) =>
     var numberOfMlSeconds = currentDateObj.getTime();
     var addMlSeconds = value * 60 * 60000;
     var newDateObj = new Date(numberOfMlSeconds + addMlSeconds);
+    console.log(newDateObj)
     fetch(url + '/api/servicios/', 
       {
         method: 'POST',
