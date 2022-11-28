@@ -996,7 +996,7 @@ const Advertencia = ({route,navigation}) =>
   return(
     <View style={{height:'100%',backgroundColor: '#874C62',justifyContent:'center',alignItems:'center'}}>
       <Text style={{fontSize:40, marginBottom:'20%',textAlign:'center'}}>{adv}</Text>
-      <Button title='Volver al menú principal' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
+      <Button color = "#F2D388" title='Volver al menú principal' onPress={() => navigation.navigate('menu',{id:idUser})}></Button>
 
 
     </View>
