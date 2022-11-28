@@ -777,7 +777,6 @@ const AlquilandoAuto = ({route, navigation}) =>
       <View style={{ backgroundColor:'#874C62', justifyContent:'center',height:'100%',alignItems:'center'}}>
           
           <CountDown
-            style={{marginBottom:'20%'}}
             until={time}
             onFinish={() => alert('finished')}
             onPress={() => alert('hello')}
