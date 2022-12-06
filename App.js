@@ -194,7 +194,7 @@ const ConfigurarUsuario = ({navigation}) =>
   return(
     <View>
         <Text>A VER SI AHORA FUNCIONAN LOS CAMBIOS</Text>
-        <Text>hello darkness my old friend </Text> 
+        <Text>testing cosas</Text> 
         <Text>Partido comunista</Text>
         <Text>Conf usuario </Text> 
         <Text>Probando cambios </Text>  
