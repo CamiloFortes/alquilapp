@@ -1,5 +1,5 @@
 import Slider from '@react-native-community/slider';
-import { ScrollView,Alert,SafeAreaView, StyleSheet,Platform,  ToastAndroid, StatusBar,TextInput, Button, Text, View, Image,PermissionsAndroid, Pressable} from 'react-native';
+import { ScrollView,Alert,SafeAreaView, StyleSheet,Platform,  ToastAndroid, StatusBar,TextInput, Button, Text, View, Image,PermissionsAndroid, Pressable, ImageStore} from 'react-native';
 import { NavigationContainer, useNavigationState} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
@@ -13,6 +13,7 @@ import { getDistance } from 'geolib';
 import * as Location from 'expo-location';
 import { AppRegistry } from 'react-native';
 import CountDown from 'react-native-countdown-component';
+import * as ImagePicker from 'expo-image-picker'
 AppRegistry.registerComponent('main',() => App);
 //Variables aldi
 const max = 2022;
@@ -24,6 +25,37 @@ const minyear = 2004;
 const yytar= 2022;
 const mmtar= 11;
 const vencm = new Date(yytar,mmtar);
+const cargarAutoSchema= yup.object().shape ({
+  modelo: yup
+  .string()
+  .required('este campo es requerido'),
+  baul: yup
+  .string()
+  .required('este campo es requerido'),
+  latitud: yup
+  .number()
+  .required(),
+  longitud: yup
+  .number()
+  .required(),
+  combustible: yup
+  .number()
+  .required(),
+  combustiblemax: yup
+  .number()
+  .required(),
+  patente: yup
+  .string()
+  .required(),
+})
+const cargarMultaSchema= yup.object().shape ({
+  dni: yup
+  .number()
+  .required(),
+  monto: yup
+  .number()
+  .required(),
+})
 const tarjetaSchema= yup.object().shape({
   monto: yup
   .number().required('Indique monto'),
@@ -372,7 +404,7 @@ const Registrar = ({navigation}) =>
           'Content-Type': 'application/json'
         },
         body: JSON.stringify
-        ({
+        ({ 
           nombre: values.name,
           apellido: values.lastname,
           email: values.email,
@@ -381,7 +413,8 @@ const Registrar = ({navigation}) =>
           fecha_nacimiento: values.date,
           fecha_vencimiento_dni: values.fechadni,
           fecha_vencimiento_licencia: values.fechalic,
-          estado: 'Online'
+          estado: 'Online',
+          modo: '0'
         })
       }
       )
@@ -548,6 +581,7 @@ const Registrar = ({navigation}) =>
        />
      </>
    )}
+    
  </Formik>
         </View>
     </ScrollView>
@@ -1117,11 +1151,353 @@ const PantallaDeCarga = ({ navigation}) =>
 
   )
 }
+const PantallaImagepicker = ({ navigation}) =>
+{
+  const [image, setImage] = useState(null);
+  //var Data={
+   // image:image,
+    //namefoto: `photo.${namefoto}`,
+    //type: `image/${Type}`
+  
+ //  };  
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+  let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 1,
+    });
+    console.log(result);
+    if (!result.cancelled) {
+    /*   //setType(result.uri.substring(result.uri.lastIndexOf(".") + 1));
+      //setImage(result.uri);
+      let localUri = result.uri;
+      let filename = localUri.split('/').pop();
+        // Infer the type of the image
+      let match = /\.(\w+)$/.exec(filename);
+      let type = match ? `image/${match[1]}` : `image`; 
+      console.log(type)
+      // Upload the image using the fetch and FormData APIs
+  const formData = new FormData();
+  // Assume "photo" is the name of the form field the server expects
+  formData.append('file', { uri: localUri, name: filename, type });
+  return await fetch("https://e0db-181-164-170-247.sa.ngrok.io/api/upload/", {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'content-type': 'multipart/form-data',
+    },
+  
+  }
+  )
+  .then((response) => response.json())
+  .then((json) => console.log(json));
+ */
+  let localUri = result.uri;
+  let filename = localUri.split('/').pop();
+    // Infer the type of the image
+  let match = /\.(\w+)$/.exec(filename);
+  let type = match ? `image/${match[1]}` : `image`; 
+  // Upload the image using the fetch and FormData APIs
+const formData = new FormData();
+const form = new FormData();
+form.append("image", localUri);
+form.append("name", "juan");
+
+const options = {
+method: 'POST',
+body: JSON.stringify({
+  'image': localUri,
+  'name':filename,
+}),
+headers: {'Content-Type': 'multipart/form-data; boundary=---011000010111000001101001'}
+};
+
+//options.body = form;
+console.log(form)
+console.log(options)
+fetch("https://e0db-181-164-170-247.sa.ngrok.io/api/upload/", options)
+.then(response => response.json())
+.then(response => console.log(response))
+.catch(err => console.error(err));
+    }
+    
+  };
+  return(
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <Button title="Pick an image from camera roll" onPress={pickImage} />
+    {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+  </View>
+  )
+  }
+const CargarCoche = ({route, navigation}) =>
+{  
+  aire= false
+  baul =false
+  const tieneaire= () =>{
+    aire=true;
+  }
+  
+  return (
+    <View style={styles.scroll}>
+      <TopB navigation={navigation}/>
+      <View style={styles.loginContainer}>
+          <Text style={{fontSize:25}}>Cargar coche</Text>
+          <Formik
+    
+    validationSchema={cargarAutoSchema}
+    initialValues={{ modelo: '',baul: '', latitud:'',longitud:'',combustible:'', combustiblemax: '',aire:'',patente:''}}
+    onSubmit={ values => {
+      fetch(url + '/api/autos/', {
+      method: 'POST',
+      headers: 
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        patente: values.patente,
+        lat: values.latitud,
+        long: values.longitud,
+        modelo: values.modelo,
+        fuel: values.combustible,
+        fuelMax: values.combustiblemax,
+        aire: values.aire,
+        baul: values.baul,
+      }),
+ 
+      
+    }
+
+    )
+      .then((response) => response.json())
+      .then((json) => console.log(json));
+    }}
+ >
+   {({
+     handleChange,
+     handleBlur,
+     handleSubmit,
+     values,
+     errors,
+     isValid,
+   }) => (
+     <>
+     <TextInput
+         name="patente"
+         placeholder="patente"
+         style={styles.textInput}
+         onChangeText={handleChange('patente')}
+         onBlur={handleBlur('patente')}
+         value={values.patente}
+       />
+       {
+          errors.patente && <Text style={{ fontSize: 10, color: 'red' }}>{errors.patente}</Text>
+       }
+     <TextInput
+         name="modelo"
+         placeholder="modelo"
+         style={styles.textInput}
+         onChangeText={handleChange('modelo')}
+         onBlur={handleBlur('modelo')}
+         value={values.modelo}
+       />
+       {
+          errors.modelo && <Text style={{ fontSize: 10, color: 'red' }}>{errors.modelo}</Text>
+       }
+        <View style={styles.viewwallet}>
+        <TextInput
+         name="latitud"
+         placeholder="latitud"
+          style={styles.textInput}
+          onChangeText={handleChange('latitud')}
+          onBlur={handleBlur('latitud')}
+          value={values.latitud}
+          keyboardType="numeric"
+        />
+        {
+          errors.latitud && <Text style={{ fontSize:10, color: 'red' }}>{errors.latitud}</Text>
+       }
+       
+        <TextInput
+          name="longitud"
+          placeholder="longitud"
+          style={styles.textInput}
+          onChangeText={handleChange('longitud')}
+          onBlur={handleBlur('longitud')}
+          value={values.longitud}
+          keyboardType="numeric"
+        />
+         {
+          errors.longitud && <Text style={{ fontSize:10, color: 'red' }}>{errors.longitud}</Text>
+       }
+ 
+        <TextInput
+         name="combustible"
+         placeholder="combustible"
+         style={styles.textInput}
+         onChangeText={handleChange('combustible')}
+         onBlur={handleBlur('combustible')}
+         value={values.combustible}
+       />
+      {
+        errors.combustible  && <Text style={{ fontSize: 10, color: 'red' }}>{errors.combustible}</Text>
+      }
+        <TextInput
+         name="combustiblemax"
+         placeholder="combustiblemax"
+         style={styles.textInput}
+         onChangeText={handleChange('combustiblemax')}
+         onBlur={handleBlur('combustiblemax')}
+         value={values.combustiblemax}
+       />
+      {
+        errors.combustiblemax  && <Text style={{ fontSize: 10, color: 'red' }}>{errors.combustiblemax}</Text>
+      }
+        </View>
+        <Text> Tiene aire?</Text>
+        <Button
+          color="#F2D388"
+          title="Si"
+          onPress={() => {
+            values.aire = "true"
+          }}
+        />
+        <Button
+          color="#F2D388"
+          title="No"
+          onPress={() => {
+              values.aire = "false"
+          }}
+        />
+              <Text> Tiene baul? </Text>
+        <Button
+          color="#F2D388"
+          title="Si"
+          onPress={() => {
+            values.baul = "true"
+          }}
+        />
+        <Button
+          color="#F2D388"
+          title="No"
+          onPress={() => {
+              values.baul = "false"
+          }}
+        />
+        <Button
+          color="#F2D388"
+          onPress={handleSubmit}
+          title="Cargar"
+          disabled={!isValid}
+        />
+      </>
+    )}
+  </Formik>
+        </View>
+    </View>
+    
+  )
+}
+
+const CargarMulta= ({route, navigation}) =>
+{
+  const manageData = (data,values) =>
+  {
+    
+    for (var i = 0; i<data.length;i++)
+    {
+    {
+      if (data[i].dni == values.dni)
+    {
+      fetch(url + '/api/usuarios/', 
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          saldo: parseInt(user.saldo) - parseInt(values.monto),
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }
+      )
+    }
+  }
+}
+}
+  const getData=(values)=>{
+  fetch(url + '/api/usuarios/') 
+      .then(response=>response.json())
+      .then(data=>manageData(data,values))
+        
+    }
+  return(
+    
+      <View style={styles.loginContainer}>
+          <Text style={{fontSize:25}}>Cargar multa</Text>
+          <Formik
+  
+    validationSchema={cargarMultaSchema}
+    initialValues={{ dni: '',monto: ''}}
+   onSubmit={ values => {
+               
+        getData(values)
+
+    }
+  }
+ >
+   {({
+     handleChange,
+     handleBlur,
+     handleSubmit,
+     values,
+     errors,
+     isValid,
+   }) => (
+     <>
+     <TextInput
+         name="dni"
+         placeholder="dni"
+         style={styles.textInput}
+         onChangeText={handleChange('dni')}
+         onBlur={handleBlur('dni')}
+         value={values.dni}
+       />
+       {
+          errors.dni && <Text style={{ fontSize: 10, color: 'red' }}>{errors.dni}</Text>
+       }
+     <TextInput
+         name="monto"
+         placeholder="monto"
+         style={styles.textInput}
+         onChangeText={handleChange('monto')}
+         onBlur={handleBlur('monto')}
+         value={values.monto}
+       />
+        <Button
+          color="#F2D388"
+          onPress={handleSubmit}
+          title="Cargar"
+          disabled={!isValid}
+        />
+      </>
+    )}
+  </Formik>
+        </View>
+   
+   
+
+  )
+
+}
 export default function App() {
   
   return (  
     <NavigationContainer>        
       <Stack.Navigator screenOptions={{headerShown: false}}>
+    
+        <Stack.Screen name="PantallaImagepicker" component={PantallaImagepicker}></Stack.Screen>
         <Stack.Screen name="pantallacarga" component={PantallaDeCarga}></Stack.Screen> 
         <Stack.Screen name="menu" component={MenuPrincipal}></Stack.Screen> 
         <Stack.Screen name="advertencia" component={Advertencia}></Stack.Screen>
