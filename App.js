@@ -2,7 +2,6 @@ import Slider from '@react-native-community/slider';
 import { ScrollView,Alert,SafeAreaView, StyleSheet,Platform,  ToastAndroid, StatusBar,TextInput, Button, Text, View, Image,PermissionsAndroid, Pressable} from 'react-native';
 import { NavigationContainer, useNavigationState} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
 import Map from './Components/Map.js'
 import Lista from './Components/Lista.js'
 import React, { useState, PropTypes,useEffect } from 'react';
@@ -153,6 +152,24 @@ const Bottom = (props) =>
     </View>    
   );
 }
+const MenuAdministrador = ({navigation}) =>
+{
+  
+  return(
+    <View style={{height:'100%'}}>
+        <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
+          <Button title='Administrar Autos' color = "#F2D388" onPress={()=>{}}></Button>
+        </View>
+           
+        <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
+          <Button title='Administrar Supervisores' color = "#F2D388" onPress={()=>{}}></Button>
+        </View>  
+        <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
+        <Button title='' color = "#F2D388" onPress={()=>{}}></Button>
+        </View>         
+    </View>
+  )
+}
 const MenuPrincipal = ({route, navigation }) =>
 {
   const {id} = route.params
@@ -253,7 +270,21 @@ const IniciarSesion = ({navigation}) =>
           if (data[i].password == values.password)
           {
             storeData(data[i].id.toString)
+            if (data[i].modo == 0)
+            {
             navigation.navigate('menu',{id:data[i].id})
+            }
+            else
+            {
+              if (data[i].modo == 1)
+            {
+              navigation.navigate('menuAdmin',{id:data[i].id})
+            }
+            else
+            {
+              navigation.navigate('menuAdmin',{id:data[i].id})
+            }
+          }
           }
           else
           {
@@ -1124,6 +1155,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="pantallacarga" component={PantallaDeCarga}></Stack.Screen> 
         <Stack.Screen name="menu" component={MenuPrincipal}></Stack.Screen> 
+        <Stack.Screen name="menuAdmin" component={MenuAdministrador}></Stack.Screen> 
         <Stack.Screen name="advertencia" component={Advertencia}></Stack.Screen>
         <Stack.Screen name="sinloguear" component={SinLoguear}></Stack.Screen>                        
         <Stack.Screen name="registrar" component={Registrar}></Stack.Screen> 
