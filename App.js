@@ -226,7 +226,7 @@ const ConfigurarUsuario = ({navigation}) =>
   return(
     <View>
         <Text>A VER SI AHORA FUNCIONAN LOS CAMBIOS</Text>
-        <Text>hello darkness my old friend </Text> 
+        <Text>testing cosas</Text> 
         <Text>Partido comunista</Text>
         <Text>Conf usuario </Text> 
         <Text>Probando cambios </Text>  
@@ -772,13 +772,13 @@ const AlquilandoAuto = ({route, navigation}) =>
   const [overflow,setOverflow]=useState(false)
   const {id,time,idAuto} = route.params
   useEffect(() => {
-    Alert.alert(
-      "Advertencia!",
-      "Se cobrará un cargo adicional si no se finaliza el servicio dentro del rango de tiempo o si deja el vehículo fuera del casco de la ciudad.",
-      [
-        { text: "OK" }
-      ]
-    );
+  Alert.alert(
+    "Advertencia!",
+    "Se cobrará un cargo adicional si no se finaliza el servicio dentro del rango de tiempo o si deja el vehículo fuera del casco de la ciudad.",
+    [
+      { text: "OK" }
+    ]
+  );
  }, [])
   
 
@@ -786,7 +786,7 @@ const AlquilandoAuto = ({route, navigation}) =>
   {
     var b = false
     const hoy = new Date()
-
+    
     for (var i=0;i<data.length;i++)
     {
      // console.log(data[i].usuario +' '+id+' '+data[i].estado)
@@ -1022,13 +1022,13 @@ const AlquilarAuto = ({route, navigation}) =>
     }   
     if (!b) 
     {
-      if (usuario.saldo<value*200)
+    if (usuario.saldo<value*200)
     {
         setError('Saldo insuficiente')
     }
-      else
+    else
     {
-         pagar(value*200)
+      pagar(value*200)
     }
     
   }
