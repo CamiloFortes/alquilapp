@@ -3,7 +3,9 @@ import { ScrollView,Alert,SafeAreaView, StyleSheet,Platform,  ToastAndroid, Stat
 import { NavigationContainer, useNavigationState} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Map from './Components/Map.js'
+import MapSup from './Components/MapSup.js'
 import Lista from './Components/Lista.js'
+import ListaSup from './Components/ListaSup.js'
 import React, { useState, PropTypes,useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Formik } from 'formik'
@@ -25,20 +27,21 @@ const minyear = 2004;
 const yytar= 2022;
 const mmtar= 11;
 const vencm = new Date(yytar,mmtar);
-const cargarAutoSchema= yup.object().shape ({
-  modelo: yup
+const HabilitarCocheSchema= yup.object().shape ({
+  patente: yup
   .string()
   .required('este campo es requerido'),
-  baul: yup
+  modelo: yup
+  .string(),
+})
+const cargarAutoSchema= yup.object().shape ({
+  modelo: yup
   .string()
   .required('este campo es requerido'),
   latitud: yup
   .number()
   .required(),
   longitud: yup
-  .number()
-  .required(),
-  combustible: yup
   .number()
   .required(),
   combustiblemax: yup
@@ -173,7 +176,7 @@ const Middle = (props) =>
 {
   return(
     <View style={styles.middle}>
-    <Map navigation={props.navigation} location={props.location} id={props.id}></Map>
+    {/*<Map navigation={props.navigation} location={props.location} id={props.id}></Map>*/}
     </View>    
   );
 }
@@ -185,16 +188,288 @@ const Bottom = (props) =>
     </View>    
   );
 }
+const TopSup = (props) =>
+{
+  const storeData = async (value) => {
+    try {
+      await AsyncStorage.setItem('usuario', value)
+    } catch (e) {
+      // saving error
+    }
+  }
+ 
+  return(
+    <View style={styles.topView}>
+      <View style={styles.topViewA}>
+        <Image source={require('./src/auto.png')} style={[{width: 50, height: 50, margin: 25},styles.titulo]} />
+        <Text style={styles.titulo}>Alquilapp</Text>    
+      </View>
+      <View style={styles.topViewB}>
+        <Pressable style={styles.botonesTop} onPress={()=>  props.navigation.navigate('cargarMulta',{id:props.id})}>
+          <Image source={require('./src/profile.png')} style={[{width: 30, height: 30, margin: 5}]} />
+        </Pressable>    
+      </View>   
+      
+    </View>    
+  );
+}
+const MiddleSup = (props) =>
+{
+  return(
+    <View style={styles.middle}>
+    {/*<MapSup navigation={props.navigation} location={props.location} id={props.id}></MapSup>*/}
+    </View>    
+  );
+}
+const BottomSup = (props) =>
+{
+  return(
+    <View style={styles.bottom}>
+    <ListaSup id={props.id} navigation={props.navigation} location={props.location}></ListaSup> 
+    </View>    
+  );
+}
+const SupervisarCoche = ({route,navigation}) =>
+{ 
+  const [auto, setAuto] = useState(null);
+  const {id} = route.params
+  const getData=()=>{
+    fetch(url + '/api/autos/'+id+'/')
+        .then(response=>response.json())
+        .then(data=>setAuto(data))
+        
+    }
+  useEffect(() => {
+    getData()
+ }, [])
+ if(auto==null)
+ {
+  return(
+    <View></View>
+  )
+ }
+ else
+ {
+  return(
+    <View style={{height:'100%',alignItems:'center',justifyContent:'center',backgroundColor: '#874C62'}}>
+        
+        <Text style={{fontSize:30}}>{auto.modelo}</Text>
+        <View style={[styles.viewwallet,{margin:'20%'}]}>
+        <BouncyCheckbox
+          size={25}
+          fillColor="#F2D388"
+          unfillColor="#FFFFFF"
+          textStyle={{
+            textDecorationLine: "none",
+          }}
+          isChecked = {auto.habilitado}
+          iconStyle={{ borderColor: "black" }}
+          innerIconStyle={{ borderWidth: 2 }}
+          onPress={() => {
+            fetch(url + '/api/autos/'+id+'/', 
+            {
+              method: 'PATCH',
+              headers: 
+              {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify
+              ({
+                habilitado: !auto.habilitado,
+              })
+            }
+            )
+            .then((json) => console.log(json));
+            getData()
+          }}
+        />
+        <Text>Coche habilitado</Text>
+        </View>
+        
+        <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
+          <Button title='Ver reportes' color = "#F2D388" onPress={()=>navigation.navigate('verReportes',{idAuto:id})}></Button>
+        </View>  
+        <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
+        <Button title='Volver' color = "#F2D388" onPress={()=>{}}></Button>
+        </View>         
+    </View>
+  )
+  }
+}
+const RepComp = (props) =>
+{
+    const [e, setE] = useState(props.eliminado);
+    const [m, setM] = useState(props.muestra);
+    return(
+    <View style={styles.auto}>
+        <Image source={require('./src/alert.png')} style={[{width: 50, height: 50, margin: 5}]}/>
+        <Text style={styles.nombre}>{props.texto}</Text>
+        <BouncyCheckbox
+          size={25}
+          fillColor="#F2D388"
+          unfillColor="#FFFFFF"
+          textStyle={{
+            textDecorationLine: "none",
+          }}
+          isChecked={props.eliminado}
+          text="Eliminar"
+          iconStyle={{ borderColor: "black" }}
+          innerIconStyle={{ borderWidth: 2 }}
+          onPress={() => {
+            fetch(url + '/api/reportes/'+props.id+'/', 
+          {
+            method: 'PATCH',
+            headers: 
+            {
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify
+            ({
+              eliminado: !e,
+            })
+          }
+          )
+          setE(!e)    
+            
+          }}
+        />
+        <BouncyCheckbox
+          size={25}
+          fillColor="#F2D388"
+          unfillColor="#FFFFFF"
+          textStyle={{
+            textDecorationLine: "none",
+          }}
+          isChecked={props.muestra}
+          text="Agregar"
+          iconStyle={{ borderColor: "black" }}
+          innerIconStyle={{ borderWidth: 2 }}
+          onPress={() => {
+            fetch(url + '/api/reportes/'+props.id+'/', 
+          {
+            method: 'PATCH',
+            headers: 
+            {
+              Accept: 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify
+            ({
+              muestra: !props.muestra,
+            })
+          }
+          )       
+          setM(!m) 
+          }}
+        /> 
+    </View>
+    )
+}
+
+const VerReportes = ({route,navigation}) => 
+{   
+    const {idAuto} = route.params
+    const [usersData,setUsersData]=useState([])
+    const addDistance = (data) =>
+    {
+            let arreglo = []
+            for (var i = 0; i<data.length;i++)
+            {
+                if ((data[i].auto == idAuto) && (data[i].eliminado == 0))
+                {
+                  arreglo.push(data[i])
+                }
+
+                
+            }
+            setUsersData(arreglo)
+    }
+
+    
+
+    const getData=()=>{
+    fetch(url+'/api/reportes/')
+        .then(response=>response.json())
+        .then(data=>addDistance(data))
+        
+    }
+   
+    useEffect(() => {
+        getData()
+     }, [])
+     //////////
+  
+    return(
+    <View style={styles.lista}>
+        {usersData.map((elemento,index)=> (<RepComp key={index} muestra={elemento.muestra} eliminado={elemento.eliminado} idAuto={elemento.auto} id={elemento.id} texto={elemento.texto} navigation={navigation} ></RepComp>))}
+    </View>
+    )
+}
+const RepCompUser = (props) =>
+{
+    
+    return(
+    <View style={styles.auto}>
+        <Image source={require('./src/alert.png')} style={[{width: 50, height: 50, margin: 5}]}/>
+        <Text style={styles.nombre}>{props.texto}</Text>
+        
+         
+    </View>
+    )
+}
+
+const VerReportesUser = ({route,navigation}) => 
+{   
+    const {idAuto,idUser} = route.params
+    const [usersData,setUsersData]=useState([])
+    const addDistance = (data) =>
+    {
+            let arreglo = []
+            for (var i = 0; i<data.length;i++)
+            {
+                if ((data[i].auto == idAuto) && (!data[i].eliminado) && (data[i].muestra))
+                {
+                  arreglo.push(data[i])
+                }
+
+                
+            }
+            setUsersData(arreglo)
+    }
+
+    
+
+    const getData=()=>{
+    fetch(url+'/api/reportes/')
+        .then(response=>response.json())
+        .then(data=>addDistance(data))
+        
+    }
+   
+    useEffect(() => {
+        getData()
+     }, [])
+     //////////
+  
+    return(
+    <View style={[styles.lista,{alignItems:'center',justifyContent:'center'}]}>
+        {usersData.map((elemento,index)=> (<RepCompUser key={index} muestra={elemento.muestra} eliminado={elemento.eliminado} idAuto={elemento.auto} id={elemento.id} texto={elemento.texto} navigation={navigation} ></RepCompUser>))}
+        <Button color="#F2D388" onPress={() =>navigation.navigate('compra',{id:idAuto,idUser:idUser})} title="Volver"/>
+    </View>
+    )
+}
 const AdmCoches = ({navigation}) =>
 {  
   return(
     <View style={{height:'100%'}}>
         <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
-          <Button title='Agregar Auto' color = "#F2D388" onPress={() =>navigation.navigate('cargarcoche')}></Button>
+          <Button title='Agregar Auto' color = "#F2D388" onPress={() =>navigation.navigate('cargarCoche')}></Button>
         </View>
            
         <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
-          <Button title='Eliminar Auto' color = "#F2D388" onPress={()=>{}}></Button>
+          <Button title='Eliminar Auto' color = "#F2D388" onPress={()=>navigation.navigate('eliminarCoche')}></Button>
         </View>  
         <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
         <Button title='Volver' color = "#F2D388" onPress={()=>{}}></Button>
@@ -207,7 +482,7 @@ const AdmSupervisores = ({navigation}) =>
   return(
     <View style={{height:'100%'}}>
         <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
-          <Button title='Registrar Supervisor' color = "#F2D388" onPress={()=>{}}></Button>
+          <Button title='Registrar Supervisor' color = "#F2D388" onPress={()=>navigation.navigate('registrarSupervisor')}></Button>
         </View>
            
         <View style={{height:'30%',justifyContent:'center',alignItems:'center'}}>
@@ -261,6 +536,42 @@ const MenuPrincipal = ({route, navigation }) =>
           <Top  navigation={navigation} id={id}/>   
           <Middle location={location} id={id} navigation={navigation}/>               
           <Bottom location={location} id={id} navigation={navigation}/>        
+      </View>
+    )
+  }
+  else
+  {
+    <View>
+          <Top navigation={navigation} id={id}/> 
+    </View>   
+  }
+  
+}
+const MenuPrincipalSup = ({route, navigation }) =>
+{
+  const {id} = route.params
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  useEffect(() => {
+    (async () => {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+  if (location != null)
+  {
+    return(
+      <View>
+          <TopSup  navigation={navigation} id={id}/>   
+          <MiddleSup location={location} id={id} navigation={navigation}/>               
+          <BottomSup location={location} id={id} navigation={navigation}/>        
       </View>
     )
   }
@@ -348,7 +659,7 @@ const IniciarSesion = ({navigation}) =>
             }
             else
             {
-              navigation.navigate('menuAdmin',{id:data[i].id})
+              navigation.navigate('menuSup',{id:data[i].id})
             }
           }
           }
@@ -652,6 +963,199 @@ const Registrar = ({navigation}) =>
     </ScrollView>
   )
 }
+const RegistrarSupervisor = ({navigation}) =>
+{ 
+  const [error,setError]=useState([])
+  const [usuarios,setUsuarios]=useState([])
+  const manageData = (data,values) =>
+  {
+
+    var b =false;    
+    
+   
+    for (var i = 0; i<data.length;i++)
+    {
+
+      if (data[i].dni == values.dni)
+      {
+        b=true
+        setError('Dni ya esta registrado')
+      }
+    }
+
+    if(!b)
+    {
+      fetch(url + '/api/usuarios/', 
+      {
+        method: 'POST',
+        headers: 
+        {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify
+        ({ 
+          nombre: values.name,
+          apellido: values.lastname,
+          email: values.email,
+          dni: values.dni,
+          password: values.password,
+          fecha_nacimiento: values.date,
+          fecha_vencimiento_dni: '2002-02-02',
+          fecha_vencimiento_licencia: '2002-02-02',
+          estado: 'Online',
+          modo: '2'
+        })
+      }
+      )
+      navigation.navigate('menuAdmin')
+    }
+  }
+ 
+
+  const getData=(values)=>{
+  fetch(url + '/api/usuarios/') 
+      .then(response=>response.json())
+      .then(data=>manageData(data,values))
+        
+    }
+  
+  
+  return(
+    <ScrollView style={styles.scroll}>
+      <TopB navigation={navigation}/>
+      
+      <View style={styles.loginContainer}>
+          <Text style={{fontSize:25}}>Registrar usuario</Text>
+          <Formik
+              validationSchema={loginValidationSchema}
+              initialValues={{ email: '', password: '',dni: '',confirmPassword:'',name: '',lastname:'', address: '', date: ''}}
+              onSubmit={ values => {
+                
+                getData(values)
+                
+              
+                
+              
+              }}
+ >
+   {({
+     handleChange,
+     handleBlur,
+     handleSubmit,
+     values,
+     errors,
+     isValid,
+   }) => (
+     <>
+        <TextInput
+         name="dni"
+         placeholder="dni"
+         style={styles.textInput}
+         onChangeText={handleChange('dni')}
+         onBlur={handleBlur('dni')}
+         value={values.dni}
+         keyboardType="numeric"
+       />
+       {
+          errors.dni && <Text style={{ fontSize: 10, color: 'red' }}>{errors.dni}</Text>
+       }
+       <TextInput
+         name="name"
+         placeholder="Nombres"
+         style={styles.textInput}
+         onChangeText={handleChange('name')}
+         onBlur={handleBlur('name')}
+         value={values.name}         
+       />
+       {
+          errors.name && <Text style={{ fontSize: 10, color: 'red' }}>{errors.name}</Text>
+       }
+       <TextInput
+         name="lastname"
+         placeholder="Apellido"
+         style={styles.textInput}
+         onChangeText={handleChange('lastname')}
+         onBlur={handleBlur('lastname')}
+         value={values.lastname}         
+       />
+       {
+        errors.lastname && <Text style={{ fontSize: 10, color: 'red' }}>{errors.lastname}</Text>
+       }
+       <TextInput
+         name="email"
+         placeholder="Dirección de correo"
+         style={styles.textInput}
+         onChangeText={handleChange('email')}
+         onBlur={handleBlur('email')}
+         value={values.email}
+         keyboardType="email-address"
+       />
+       {
+          errors.email && <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
+       }
+       <TextInput
+         name="fecha de nacimiento"
+         placeholder="fecha de nacimiento YYYY-MM-DD"
+         style={styles.textInput}
+         onChangeText={handleChange('date')}
+         onBlur={handleBlur('date')}
+         value={values.date}
+       />
+       {
+          errors.date && <Text style={{ fontSize: 10, color: 'red' }}>{errors.date}</Text>
+       }        
+         <TextInput
+         name="address"
+         placeholder="Direccion"
+         style={styles.textInput}
+         onChangeText={handleChange('address')}
+         onBlur={handleBlur('address')}
+         value={values.address}         
+       />
+       {
+          errors.address && <Text style={{ fontSize: 10, color: 'red' }}>{errors.address}</Text>
+       }
+       <TextInput
+         name="password"
+         placeholder="Contraseña"
+         style={styles.textInput}
+         onChangeText={handleChange('password')}
+         onBlur={handleBlur('password')}
+         value={values.password}
+         secureTextEntry
+       />
+       {
+          errors.password && <Text style={{ fontSize: 10, color: 'red' }}>{errors.password}</Text>
+       }
+        <TextInput
+         name="Confirm password"
+         placeholder="Confirmar Contraseña"
+         style={styles.textInput}
+         onChangeText={handleChange('confirmPassword')}
+         onBlur={handleBlur('confirmPassword')}
+         value={values.confirmPassword}
+         secureTextEntry
+       />
+       {
+          errors.confirmPassword && <Text style={{ fontSize: 10, color: 'red' }}>{errors.confirmPassword}</Text>
+       }
+       
+       <Text>{error}</Text>
+       <Button
+          color="#F2D388"
+         onPress={handleSubmit}
+         title="REGISTRARSE"
+         disabled={!isValid}
+       />
+     </>
+   )}
+    
+ </Formik>
+        </View>
+    </ScrollView>
+  )
+}
 const SinLoguear = ({navigation}) =>
 { 
   //LOCATION TEST
@@ -874,7 +1378,7 @@ const AlquilandoAuto = ({route, navigation}) =>
       }
 
     }
-    
+  
     
   }
     const setAuto = (data) =>
@@ -900,72 +1404,58 @@ const AlquilandoAuto = ({route, navigation}) =>
                 .then((response) => response.json())
                 .then((json) => console.log(json));
 
+
             }}
           ]
         );
-        if (overflow)
-        {
-          Alert.alert(
-            "Advertencia!",
-            "Usted recibirá una multa por no cumplir el plazo de tiempo.",
-            [
-              { text: "OK" ,onPress: () => {
-                fetch(url + '/api/usuarios/'+id+'/', {
-                  method: 'PATCH',
-                  body: JSON.stringify({
-                    saldo: parseInt(usuario.saldo) - 500,
-                  }),
-                  headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                  },                
-                }          
-                )
-                  .then((response) => response.json())
-                  .then((json) => console.log(json));
-  
-              }}
-            ]
-          );
-        }
-        navigation.navigate('menu',{id:id})
       }
-      else
+      if (overflow)
       {
+        Alert.alert(
+          "Advertencia!",
+          "Usted recibirá una multa por no cumplir el plazo de tiempo.",
+          [
+            { text: "OK" ,onPress: () => {
+              fetch(url + '/api/usuarios/'+id+'/', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                  saldo: parseInt(usuario.saldo) - 500,
+                }),
+                headers: {
+                  'Content-type': 'application/json; charset=UTF-8',
+                },                
+              }          
+              )
+                .then((response) => response.json())
+                .then((json) => console.log(json));
+
+            }}
+          ]
+        );
+      }
+        
+        
+      
         Alert.alert(
           "Muchas Gracias!",
           "Viaje finalizado con éxito.",
           [
             { text: "OK",onPress: () => {
-               if (overflow)
-              {
-                Alert.alert(
-                  "Advertencia!",
-                  "Usted recibirá una multa por no cumplir el plazo de tiempo.",
-                  [
-                    { text: "OK" ,onPress: () => {
-                      fetch(url + '/api/usuarios/'+id+'/', {
-                        method: 'PATCH',
-                        body: JSON.stringify({
-                          saldo: parseInt(usuario.saldo) - 500,
-                        }),
-                        headers: {
-                          'Content-type': 'application/json; charset=UTF-8',
-                        },                
-                      }          
-                      )
-                        .then((response) => response.json())
-                        .then((json) => console.log(json));
-        
-                    }}
-                  ]
-                );
-              }
               navigation.navigate('menu',{id:id})
+               
+              
+            }},
+            { text: "Reportar Coche",onPress: () => {
+              navigation.navigate('cargarReporte',{idAuto:idAuto,id:id})
+               
+              
             }}
+
+
           ]
         );
       }
-    }
+    
     const getData=()=>{
     fetch(url + '/api/autos/'+idAuto+'/')
         .then(response=>response.json())
@@ -999,9 +1489,9 @@ const AlquilandoAuto = ({route, navigation}) =>
             onPress={() => alert('hello')}
             size={20}
           />
-          
-          
+            
           <Button color="#F2D388" title='finalizar servicio' onPress={() => finalizarServicio()}></Button>
+     
       </View>
   )
 }
@@ -1149,7 +1639,9 @@ const AlquilarAuto = ({route, navigation}) =>
       </View>      
       <View style={{height:'20%',width:'100%', alignself:'center', alignItems:'center',marginBottom:15,justifyContent:'center'}}>
         <Button color="#F2D388" onPress={() =>getDataB()} title="Alquilar"/>
-      </View>     
+        <Button color="#F2D388" onPress={() =>navigation.navigate('verReportesUser',{idAuto:id,idUser:idUser})} title="Ver Reportes"/>
+      </View>
+              
       
     </View>
     </View>
@@ -1273,7 +1765,8 @@ form.append("name", "juan");
 
 const options = {
 method: 'POST',
-headers: {'Content-Type': 'multipart/form-data; boundary=---011000010111000001101001'}
+headers: { Accept: 'application/json',
+'Content-Type': 'application/json'}
 };
 
 options.body = form;
@@ -1296,8 +1789,56 @@ fetch("https://e0db-181-164-170-247.sa.ngrok.io/api/upload/", options)
   }
 const CargarCoche = ({route, navigation}) =>
 {  
-  aire= false
-  baul =false
+  const [errorMsg, setErrorMsg] = useState('');
+  const manageData = (data,values) =>
+  {
+    
+    let b = false
+    for (var i = 0; i<data.length;i++)
+    {
+      if (data[i].patente==values.patente)
+      {
+        setErrorMsg('Patente ya existente')
+        b = true
+      }
+    }
+    if (!b)
+    {
+      fetch(url + '/api/autos/', {
+        method: 'POST',
+        headers: 
+        {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          patente: values.patente,
+          lat: values.latitud,
+          long: values.longitud,
+          modelo: values.modelo,
+          fuel: 500,
+          fuelMax: values.combustiblemax,
+          aire: values.aire,
+          baul: values.baul,
+        }),
+   
+        
+      }
+  
+      )
+        .then((response) => response.json())
+        .then((json) => console.log(json));
+        Alert.alert(
+          "Alquilapp",
+          "Coche registrado con éxito",
+          [       
+            { text: "OK", onPress: () => navigation.navigate('menuAdmin') }
+          ]
+        );
+    }
+    
+  }
+  
   return (
     <View style={styles.scroll}>
       <TopB navigation={navigation}/>
@@ -1307,31 +1848,12 @@ const CargarCoche = ({route, navigation}) =>
     
     validationSchema={cargarAutoSchema}
     initialValues={{ modelo: '',baul: false, latitud:'',longitud:'',combustible:'', combustiblemax: '',aire:false,patente:''}}
-    onSubmit={ values => {
-      fetch(url + '/api/autos/', {
-      method: 'POST',
-      headers: 
-      {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        patente: values.patente,
-        lat: values.latitud,
-        long: values.longitud,
-        modelo: values.modelo,
-        fuel: values.combustible,
-        fuelMax: values.combustiblemax,
-        aire: values.aire,
-        baul: values.baul,
-      }),
- 
-      
-    }
-
-    )
-      .then((response) => response.json())
-      .then((json) => console.log(json));
+    
+    onSubmit={ values =>       
+    {
+      fetch(url + '/api/autos/') 
+      .then(response=>response.json())
+      .then(data=>manageData(data,values))
     }}
  >
    {({
@@ -1440,7 +1962,7 @@ const CargarCoche = ({route, navigation}) =>
         />
         <Text> Baúl </Text>
         </View>
-        
+        <Text>{errorMsg}</Text>
         <Button
           color="#F2D388"
           onPress={handleSubmit}
@@ -1455,7 +1977,316 @@ const CargarCoche = ({route, navigation}) =>
     
   )
 }
+const HabilitarCoche = ({navigation}) =>{
+  {
+    const manageData = (data,values) =>
+    {
+      
+      for (var i = 0; i<data.length;i++)
+      {
+      {
+        if (data[i].patente == values.patente)
+      {
+        fetch(url + '/api/autos/', 
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            habilitado:1,
+          }),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        }
+        )
+      }
+    }
+  }
+  }
+    const getData=(values)=>{
+    fetch(url + '/api/autos/') 
+        .then(response=>response.json())
+        .then(data=>manageData(data,values))
+          
+      }
+    return(
+      
+        <View style={styles.loginContainer}>
+            <Text style={{fontSize:25}}>Habilitar coche</Text>
+            <Formik
+    
+      validationSchema={HabilitarCocheSchema}
+      initialValues={{ patente: '',modelo: ''}}
+     onSubmit={ values => {
+                 
+          getData(values)
+  
+      }
+    }
+   >
+     {({
+       handleChange,
+       handleBlur,
+       handleSubmit,
+       values,
+       errors,
+       isValid,
+     }) => (
+       <>
+       <TextInput
+           name="patente"
+           placeholder="patente"
+           style={styles.textInput}
+           onChangeText={handleChange('patente')}
+           onBlur={handleBlur('patente')}
+           value={values.patente}
+         />
+         {
+            errors.patente && <Text style={{ fontSize: 10, color: 'red' }}>{errors.patente}</Text>
+         }
+       <TextInput
+           name="modelo"
+           placeholder="modelo"
+           style={styles.textInput}
+           onChangeText={handleChange('modelo')}
+           onBlur={handleBlur('modelo')}
+           value={values.modelo}
+         />
+         {
+            errors.modelo && <Text style={{ fontSize: 10, color: 'red' }}>{errors.modelo}</Text>
+         }
+          <Button
+            color="#F2D388"
+            onPress={handleSubmit}
+            title="Cargar"
+            disabled={!isValid}
+          />
+        </>
+      )}
+    </Formik>
+          </View>
+     
+     
+  
+    )
+  
+  }
 
+}
+const EliminarCoche = ({navigation}) =>{
+  {
+    const manageData = (data,values) =>
+    {
+      console.log("hola2")
+        
+        for (var i = 0; i<data.length;i++)
+        {
+        {
+          console.log(data[i].patente+" = "+values.patente)
+          if (data[i].patente == values.patente)
+          {
+          fetch(url + '/api/autos/'+data[i].id+'/', 
+          {
+            method: 'PATCH',
+            body: JSON.stringify({
+              patente:"0",
+              eliminado:1,
+            }),
+            headers: {
+              'Content-type': 'application/json; charset=UTF-8',
+            },
+            }
+            )
+            .then((response) => response.json())
+            .then((json) => console.log(json));
+          }
+          }
+        }
+    }
+    const getData=(values)=>{
+    fetch(url + '/api/autos/') 
+        .then(response=>response.json())
+        .then(data=>manageData(data,values))
+        console.log("hola1")
+          
+      }
+    return(
+      
+        <View style={[styles.loginContainer,{height:"100%", alignItems:"center",justifyContent:"center"}]}>
+            <Text style={{fontSize:25}}>Eliminar Coche</Text>
+            <Formik
+    
+      validationSchema={HabilitarCocheSchema}
+      initialValues={{ patente: '',modelo: ''}}
+     onSubmit={ values => {
+                 
+          getData(values)
+  
+      }
+    }
+   >
+     {({
+       handleChange,
+       handleBlur,
+       handleSubmit,
+       values,
+       errors,
+       isValid,
+     }) => (
+       <>
+       <TextInput
+           name="patente"
+           placeholder="patente"
+           style={styles.textInput}
+           onChangeText={handleChange('patente')}
+           onBlur={handleBlur('patente')}
+           value={values.patente}
+         />
+         {
+            errors.patente && <Text style={{ fontSize: 10, color: 'red' }}>{errors.patente}</Text>
+  }
+          <Button
+            color="#F2D388"
+            onPress={handleSubmit}
+            title="Eliminar"
+            disabled={!isValid}
+          />
+        </>
+      )}
+    </Formik>
+          </View>
+     
+     
+  
+    )
+  
+  }
+
+}
+const deshabilitarCoche = ({navigation}) =>{
+  {
+    const manageData = (data,values) =>
+    {
+      
+      for (var i = 0; i<data.length;i++)
+      {
+      {
+        if (data[i].patente == values.patente)
+      {
+        
+        fetch(url + '/api/autos/'+data[i].id+'/', 
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            habilitado:0,
+          }),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        }
+        )
+      }
+    }
+  }
+  }
+    const getData=(values)=>{
+    fetch(url + '/api/autos/') 
+        .then(response=>response.json())
+        .then(data=>manageData(data,values))
+          
+      }
+    return(
+      
+        <View style={styles.loginContainer}>
+            <Text style={{fontSize:25}}>Deshabilitar Coche</Text>
+            <Formik
+    
+      validationSchema={HabilitarCocheSchema}
+      initialValues={{ patente: '',modelo: ''}}
+     onSubmit={ values => {
+                 
+          getData(values)
+  
+      }
+    }
+   >
+     {({
+       handleChange,
+       handleBlur,
+       handleSubmit,
+       values,
+       errors,
+       isValid,
+     }) => (
+       <>
+       <TextInput
+           name="patente"
+           placeholder="patente"
+           style={styles.textInput}
+           onChangeText={handleChange('patente')}
+           onBlur={handleBlur('patente')}
+           value={values.patente}
+         />
+         {
+            errors.patente && <Text style={{ fontSize: 10, color: 'red' }}>{errors.patente}</Text>
+         }
+          <Button
+            color="#F2D388"
+            onPress={handleSubmit}
+            title="Deshabilitar"
+            disabled={!isValid}
+          />
+        </>
+      )}
+    </Formik>
+          </View>
+     
+     
+  
+    )
+  
+  }
+
+}
+const cargarReporte= ({route,navigation}) =>
+{
+  const [text, setText] = useState('');
+  const {idAuto,id} = route.params
+  const clickHandler =  (text) => {
+
+
+  fetch(url + '/api/reportes/', 
+  {
+    method: 'POST',
+    headers: 
+    {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify
+    ({
+      auto: idAuto,
+      texto: text,
+      muestra: '0',
+    })
+  }
+  )
+  navigation.navigate('menu', {id:id})
+
+  }
+  
+  return(
+    <View style={{height:'100%',backgroundColor: '#874C62',justifyContent:'center',alignItems:'center'}}>
+      <Text style={{fontSize:40, marginBottom:'20%',textAlign:'center'}}>Escribir reporte</Text>
+      <TextInput
+        placeholder="Escribir reporte"
+        onChangeText={newText => setText(newText)}
+        defaultValue={text}  
+       /> 
+       <Button color = "#F2D388" title='Enviar reporte' onPress={() => clickHandler(text)}></Button>
+       <Button color = "#F2D388" title='Volver al menu' onPress={() => navigation.navigate('menu', {id:id})}></Button>
+    </View>
+  )
+}
 const CargarMulta= ({route, navigation}) =>
 {
   const manageData = (data,values) =>
@@ -1477,9 +2308,23 @@ const CargarMulta= ({route, navigation}) =>
         },
       }
       )
+      Alert.alert(
+        "Alquilapp",
+        "Multa cargada con exito",
+        [       
+          { text: "OK", onPress: () => navigation.navigate('menuSup') }
+        ]
+      );
     }
   }
 }
+Alert.alert(
+  "Alquilapp",
+  "DNI no existente",
+  [       
+    { text: "OK", onPress: () => {} }
+  ]
+);
 }
   const getData=(values)=>{
   fetch(url + '/api/usuarios/') 
@@ -1549,12 +2394,16 @@ export default function App() {
   return (  
     <NavigationContainer>        
       <Stack.Navigator screenOptions={{headerShown: false}}>
-    
-        {/*<Stack.Screen name="PantallaImagepicker" component={PantallaImagepicker}></Stack.Screen>*/}
-        <Stack.Screen name="pantallacarga" component={PantallaDeCarga}></Stack.Screen>
-        <Stack.Screen name="cargarcoche" component={CargarCoche}></Stack.Screen>
-        <Stack.Screen name="cargarmulta" component={CargarMulta}></Stack.Screen>
+        <Stack.Screen name="pantallacarga" component={PantallaDeCarga}></Stack.Screen> 
+        <Stack.Screen name="registrarSupervisor" component={ RegistrarSupervisor}></Stack.Screen>
+        <Stack.Screen name="PantallaImagepicker" component={PantallaImagepicker}></Stack.Screen> 
+        <Stack.Screen name="cargarCoche" component={CargarCoche}></Stack.Screen> 
+        <Stack.Screen name="eliminarCoche" component={EliminarCoche}></Stack.Screen>  
+        <Stack.Screen name="supervisarCoche" component={SupervisarCoche}></Stack.Screen>       
         <Stack.Screen name="menu" component={MenuPrincipal}></Stack.Screen> 
+        <Stack.Screen name="verReportes" component={VerReportes}></Stack.Screen>
+        <Stack.Screen name="verReportesUser" component={VerReportesUser}></Stack.Screen>
+        <Stack.Screen name="menuSup" component={MenuPrincipalSup}></Stack.Screen> 
         <Stack.Screen name="administrarautos" component={AdmCoches}></Stack.Screen> 
         <Stack.Screen name="administrarsupervisores" component={AdmSupervisores}></Stack.Screen> 
         <Stack.Screen name="menuAdmin" component={MenuAdministrador}></Stack.Screen> 
@@ -1567,6 +2416,10 @@ export default function App() {
         <Stack.Screen name="billetera" component={CargarBilletera}></Stack.Screen>        
         <Stack.Screen name="compra" component={AlquilarAuto}></Stack.Screen>
         <Stack.Screen name="alquilando" component={AlquilandoAuto}></Stack.Screen>
+        <Stack.Screen name="cargarReporte" component={cargarReporte}></Stack.Screen>
+        <Stack.Screen name="HabilitarCoche" component={HabilitarCoche}></Stack.Screen>
+        <Stack.Screen name="cargarMulta" component={CargarMulta}></Stack.Screen>
+        
       </Stack.Navigator>
     </NavigationContainer>       
   );
@@ -1708,5 +2561,29 @@ const styles = StyleSheet.create(
     flexDirection: 'row',
     borderStyle:'solid',
     
-  }
+  },
+  lista:{
+    height: '100%',
+    width: '100%',
+
+},
+auto:{
+
+    alignItems: 'center',
+    justifyContent:'center',
+    flexDirection: 'row',
+    height: '20%',
+    width: '100%',
+    borderBottomWidth:2,
+    borderColor: '#592438',
+    
+},
+nombre:{
+    marginHorizontal:5,
+    fontSize: 15
+},
+boton:{
+    margin:5
+
+}
 });

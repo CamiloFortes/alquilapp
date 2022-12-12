@@ -11,12 +11,12 @@ const AutoComp = (props) =>
     <View style={styles.auto}>
         <Image source={require('../src/3d-car.png')} style={[{width: 50, height: 50, margin: 5}]}/>
         <Text style={styles.nombre}>{props.nombre + " ("+(props.distancia/1000).toFixed(2)+" km.)"}</Text> 
-        <Button stlye={styles.boton} color='#F2D388' title={"Alquilar"} onPress={() => props.navigation.navigate('compra',{id:props.id,idUser:props.iduser})}></Button>
+        <Button stlye={styles.boton} color='#F2D388' title={"Opciones"} onPress={() => props.navigation.navigate('supervisarCoche',{id:props.id,idUser:props.iduser})}></Button>
     </View>
     )
 }
 
-const Lista = (props) => 
+const ListaSup = (props) => 
 {   
     ////////////
     const [usersData,setUsersData]=useState([])
@@ -38,11 +38,9 @@ const Lista = (props) =>
       for (var i= 0; i<data.length;i++)
       {
         const distancia = getDistance({latitude:-34.92134316756183,longitude:-57.95451348835805},{latitude:data[i].lat,longitude:data[i].long})
-        console.log(distancia)
-        if ((distancia<4000)&&(data[i].habilitado)&&(data[i].eliminado==0))
-        {
-          arreglo.push(data[i])
-        }
+        console.log(distancia)    
+        arreglo.push(data[i])
+        
       }
       setUsersData(arreglo)
     }
@@ -95,4 +93,4 @@ const styles = StyleSheet.create(
         
     }
 )
-export default Lista
+export default ListaSup
