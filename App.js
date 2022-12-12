@@ -25,6 +25,13 @@ const minyear = 2004;
 const yytar= 2022;
 const mmtar= 11;
 const vencm = new Date(yytar,mmtar);
+const HabilitarCocheSchema= yup.object().shape ({
+  patente: yup
+  .string()
+  .required('este campo es requerido'),
+  modelo: yup
+  .string(),
+})
 const cargarAutoSchema= yup.object().shape ({
   modelo: yup
   .string()
@@ -587,6 +594,199 @@ const Registrar = ({navigation}) =>
     </ScrollView>
   )
 }
+const RegistrarSupervisor = ({navigation}) =>
+{ 
+  const [error,setError]=useState([])
+  const [usuarios,setUsuarios]=useState([])
+  const manageData = (data,values) =>
+  {
+
+    var b =false;    
+    
+   
+    for (var i = 0; i<data.length;i++)
+    {
+
+      if (data[i].dni == values.dni)
+      {
+        b=true
+        setError('Dni ya esta registrado')
+      }
+    }
+
+    if(!b)
+    {
+      fetch(url + '/api/usuarios/', 
+      {
+        method: 'POST',
+        headers: 
+        {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify
+        ({ 
+          nombre: values.name,
+          apellido: values.lastname,
+          email: values.email,
+          dni: values.dni,
+          password: values.password,
+          fecha_nacimiento: values.date,
+          fecha_vencimiento_dni: '2002-02-02',
+          fecha_vencimiento_licencia: '2002-02-02',
+          estado: 'Online',
+          modo: '0'
+        })
+      }
+      )
+      navigation.navigate('sinloguear')
+    }
+  }
+ 
+
+  const getData=(values)=>{
+  fetch(url + '/api/usuarios/') 
+      .then(response=>response.json())
+      .then(data=>manageData(data,values))
+        
+    }
+  
+  
+  return(
+    <ScrollView style={styles.scroll}>
+      <TopB navigation={navigation}/>
+      
+      <View style={styles.loginContainer}>
+          <Text style={{fontSize:25}}>Registrar usuario</Text>
+          <Formik
+              validationSchema={loginValidationSchema}
+              initialValues={{ email: '', password: '',dni: '',confirmPassword:'',name: '',lastname:'', address: '', date: ''}}
+              onSubmit={ values => {
+                
+                getData(values)
+                
+              
+                
+              
+              }}
+ >
+   {({
+     handleChange,
+     handleBlur,
+     handleSubmit,
+     values,
+     errors,
+     isValid,
+   }) => (
+     <>
+        <TextInput
+         name="dni"
+         placeholder="dni"
+         style={styles.textInput}
+         onChangeText={handleChange('dni')}
+         onBlur={handleBlur('dni')}
+         value={values.dni}
+         keyboardType="numeric"
+       />
+       {
+          errors.dni && <Text style={{ fontSize: 10, color: 'red' }}>{errors.dni}</Text>
+       }
+       <TextInput
+         name="name"
+         placeholder="Nombres"
+         style={styles.textInput}
+         onChangeText={handleChange('name')}
+         onBlur={handleBlur('name')}
+         value={values.name}         
+       />
+       {
+          errors.name && <Text style={{ fontSize: 10, color: 'red' }}>{errors.name}</Text>
+       }
+       <TextInput
+         name="lastname"
+         placeholder="Apellido"
+         style={styles.textInput}
+         onChangeText={handleChange('lastname')}
+         onBlur={handleBlur('lastname')}
+         value={values.lastname}         
+       />
+       {
+        errors.lastname && <Text style={{ fontSize: 10, color: 'red' }}>{errors.lastname}</Text>
+       }
+       <TextInput
+         name="email"
+         placeholder="Dirección de correo"
+         style={styles.textInput}
+         onChangeText={handleChange('email')}
+         onBlur={handleBlur('email')}
+         value={values.email}
+         keyboardType="email-address"
+       />
+       {
+          errors.email && <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
+       }
+       <TextInput
+         name="fecha de nacimiento"
+         placeholder="fecha de nacimiento YYYY-MM-DD"
+         style={styles.textInput}
+         onChangeText={handleChange('date')}
+         onBlur={handleBlur('date')}
+         value={values.date}
+       />
+       {
+          errors.date && <Text style={{ fontSize: 10, color: 'red' }}>{errors.date}</Text>
+       }        
+         <TextInput
+         name="address"
+         placeholder="Direccion"
+         style={styles.textInput}
+         onChangeText={handleChange('address')}
+         onBlur={handleBlur('address')}
+         value={values.address}         
+       />
+       {
+          errors.address && <Text style={{ fontSize: 10, color: 'red' }}>{errors.address}</Text>
+       }
+       <TextInput
+         name="password"
+         placeholder="Contraseña"
+         style={styles.textInput}
+         onChangeText={handleChange('password')}
+         onBlur={handleBlur('password')}
+         value={values.password}
+         secureTextEntry
+       />
+       {
+          errors.password && <Text style={{ fontSize: 10, color: 'red' }}>{errors.password}</Text>
+       }
+        <TextInput
+         name="Confirm password"
+         placeholder="Confirmar Contraseña"
+         style={styles.textInput}
+         onChangeText={handleChange('confirmPassword')}
+         onBlur={handleBlur('confirmPassword')}
+         value={values.confirmPassword}
+         secureTextEntry
+       />
+       {
+          errors.confirmPassword && <Text style={{ fontSize: 10, color: 'red' }}>{errors.confirmPassword}</Text>
+       }
+       
+       <Text>{error}</Text>
+       <Button
+          color="#F2D388"
+         onPress={handleSubmit}
+         title="REGISTRARSE"
+         disabled={!isValid}
+       />
+     </>
+   )}
+    
+ </Formik>
+        </View>
+    </ScrollView>
+  )
+}
 const SinLoguear = ({navigation}) =>
 { 
   //LOCATION TEST
@@ -809,7 +1009,7 @@ const AlquilandoAuto = ({route, navigation}) =>
       }
 
     }
-    
+  
     
   }
     const setAuto = (data) =>
@@ -934,9 +1134,9 @@ const AlquilandoAuto = ({route, navigation}) =>
             onPress={() => alert('hello')}
             size={20}
           />
-          
-          
+            <Button color="#F2D388" title='añadir reporte' onPress={() => navigation.navigate ('cargarReporte', {id : id,time: time ,idAuto: idAuto})}></Button>
           <Button color="#F2D388" title='finalizar servicio' onPress={() => finalizarServicio()}></Button>
+     
       </View>
   )
 }
@@ -1211,7 +1411,8 @@ body: JSON.stringify({
   'image': localUri,
   'name':filename,
 }),
-headers: {'Content-Type': 'multipart/form-data; boundary=---011000010111000001101001'}
+headers: { Accept: 'application/json',
+'Content-Type': 'application/json'}
 };
 
 //options.body = form;
@@ -1400,7 +1601,234 @@ const CargarCoche = ({route, navigation}) =>
     
   )
 }
+const HabilitarCoche = ({navigation}) =>{
+  {
+    const manageData = (data,values) =>
+    {
+      
+      for (var i = 0; i<data.length;i++)
+      {
+      {
+        if (data[i].patente == values.patente)
+      {
+        fetch(url + '/api/usuarios/', 
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            habilitado:1,
+          }),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        }
+        )
+      }
+    }
+  }
+  }
+    const getData=(values)=>{
+    fetch(url + '/api/usuarios/') 
+        .then(response=>response.json())
+        .then(data=>manageData(data,values))
+          
+      }
+    return(
+      
+        <View style={styles.loginContainer}>
+            <Text style={{fontSize:25}}>Habilitar coche</Text>
+            <Formik
+    
+      validationSchema={HabilitarCocheSchema}
+      initialValues={{ patente: '',modelo: ''}}
+     onSubmit={ values => {
+                 
+          getData(values)
+  
+      }
+    }
+   >
+     {({
+       handleChange,
+       handleBlur,
+       handleSubmit,
+       values,
+       errors,
+       isValid,
+     }) => (
+       <>
+       <TextInput
+           name="patente"
+           placeholder="patente"
+           style={styles.textInput}
+           onChangeText={handleChange('patente')}
+           onBlur={handleBlur('patente')}
+           value={values.patente}
+         />
+         {
+            errors.patente && <Text style={{ fontSize: 10, color: 'red' }}>{errors.patente}</Text>
+         }
+       <TextInput
+           name="modelo"
+           placeholder="modelo"
+           style={styles.textInput}
+           onChangeText={handleChange('modelo')}
+           onBlur={handleBlur('modelo')}
+           value={values.modelo}
+         />
+         {
+            errors.modelo && <Text style={{ fontSize: 10, color: 'red' }}>{errors.modelo}</Text>
+         }
+          <Button
+            color="#F2D388"
+            onPress={handleSubmit}
+            title="Cargar"
+            disabled={!isValid}
+          />
+        </>
+      )}
+    </Formik>
+          </View>
+     
+     
+  
+    )
+  
+  }
 
+}
+const deshabilitarCoche = ({navigation}) =>{
+  {
+    const manageData = (data,values) =>
+    {
+      
+      for (var i = 0; i<data.length;i++)
+      {
+      {
+        if (data[i].patente == values.patente)
+      {
+        fetch(url + '/api/usuarios/', 
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            habilitado:0,
+          }),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        }
+        )
+      }
+    }
+  }
+  }
+    const getData=(values)=>{
+    fetch(url + '/api/usuarios/') 
+        .then(response=>response.json())
+        .then(data=>manageData(data,values))
+          
+      }
+    return(
+      
+        <View style={styles.loginContainer}>
+            <Text style={{fontSize:25}}>Cargar multa</Text>
+            <Formik
+    
+      validationSchema={HabilitarCocheSchema}
+      initialValues={{ patente: '',modelo: ''}}
+     onSubmit={ values => {
+                 
+          getData(values)
+  
+      }
+    }
+   >
+     {({
+       handleChange,
+       handleBlur,
+       handleSubmit,
+       values,
+       errors,
+       isValid,
+     }) => (
+       <>
+       <TextInput
+           name="patente"
+           placeholder="patente"
+           style={styles.textInput}
+           onChangeText={handleChange('patente')}
+           onBlur={handleBlur('patente')}
+           value={values.patente}
+         />
+         {
+            errors.patente && <Text style={{ fontSize: 10, color: 'red' }}>{errors.patente}</Text>
+         }
+       <TextInput
+           name="modelo"
+           placeholder="modelo"
+           style={styles.textInput}
+           onChangeText={handleChange('modelo')}
+           onBlur={handleBlur('modelo')}
+           value={values.modelo}
+         />
+         {
+            errors.modelo && <Text style={{ fontSize: 10, color: 'red' }}>{errors.modelo}</Text>
+         }
+          <Button
+            color="#F2D388"
+            onPress={handleSubmit}
+            title="Cargar"
+            disabled={!isValid}
+          />
+        </>
+      )}
+    </Formik>
+          </View>
+     
+     
+  
+    )
+  
+  }
+
+}
+const cargarReporte= ({route,navigation}) =>
+{
+  const [text, setText] = useState('');
+  const {idAuto} = route.params
+  const clickHandler =  (text) => {
+
+
+  fetch(url + '/api/reportes/', 
+  {
+    method: 'POST',
+    headers: 
+    {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify
+    ({
+      auto: idAuto,
+      texto: text,
+      muestra: '0',
+    })
+  }
+  )
+  }
+  
+  return(
+    <View style={{height:'100%',backgroundColor: '#874C62',justifyContent:'center',alignItems:'center'}}>
+      <Text style={{fontSize:40, marginBottom:'20%',textAlign:'center'}}>Escribir reporte</Text>
+      <TextInput
+        placeholder="Escribir reporte"
+        onChangeText={newText => setText(newText)}
+        defaultValue={text}  
+       /> 
+       <Button color = "#F2D388" title='Enviar reporte' onPress={clickHandler(text)}></Button>
+       <Button color = "#F2D388" title='Volver al menu' onPress={() => navigation.navigate('menu', {id:idUser})}></Button>
+    </View>
+  )
+}
 const CargarMulta= ({route, navigation}) =>
 {
   const manageData = (data,values) =>
@@ -1496,8 +1924,10 @@ export default function App() {
   return (  
     <NavigationContainer>        
       <Stack.Navigator screenOptions={{headerShown: false}}>
-    
-        <Stack.Screen name="PantallaImagepicker" component={PantallaImagepicker}></Stack.Screen>
+      
+      <Stack.Screen name=" RegistrarSupervisor" component={ RegistrarSupervisor}></Stack.Screen>
+        <Stack.Screen name="PantallaImagepicker" component={PantallaImagepicker}></Stack.Screen> 
+        
         <Stack.Screen name="pantallacarga" component={PantallaDeCarga}></Stack.Screen> 
         <Stack.Screen name="menu" component={MenuPrincipal}></Stack.Screen> 
         <Stack.Screen name="advertencia" component={Advertencia}></Stack.Screen>
@@ -1509,6 +1939,9 @@ export default function App() {
         <Stack.Screen name="billetera" component={CargarBilletera}></Stack.Screen>        
         <Stack.Screen name="compra" component={AlquilarAuto}></Stack.Screen>
         <Stack.Screen name="alquilando" component={AlquilandoAuto}></Stack.Screen>
+        <Stack.Screen name="cargarReporte" component={cargarReporte}></Stack.Screen>
+        <Stack.Screen name="HabilitarCoche" component={HabilitarCoche}></Stack.Screen>
+        
       </Stack.Navigator>
     </NavigationContainer>       
   );
